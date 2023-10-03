@@ -13,8 +13,15 @@
       "css": ["highcharts.css"]
     }
   ],
+  "background": {
+    "service_worker": "timechimp.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": "timechimp.png"
-  }
+  },
+  "host_permissions": [
+    "https://api.timechimp.com/"
+  ]
 }
+
