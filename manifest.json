@@ -11,7 +11,7 @@
   "content_scripts": [
     {
       "matches": ["https://app.timechimp.com/*"],
-      "js": ["highcharts.js","accessibility.js", "charts.js", "add-billibility-chart.js"],
+      "js": ["moment.js_2.29.4.min.js","highcharts.js","accessibility.js", "charts.js", "add-billibility-chart.js"],
       "css": ["highcharts.css"]
     }
   ],

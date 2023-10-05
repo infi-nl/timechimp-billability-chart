@@ -8,6 +8,17 @@
         return card;
     }
 
+    function groupByWeek(times) {
+        // Add week numbers
+        const timesWithWeeks = times.map(time => {
+            time.week = moment(time["date"]).format('W');
+            return time;
+        });
+        // Group by week
+        const timesGroupedByWeek = Object.groupBy(timesWithWeeks, ({ week }) => week);
+        return timesGroupedByWeek;
+    }
+
     console.log('Starting extension');
     const addTimePanel = document.querySelector('.col-md-4');
     if (!addTimePanel || !addTimePanel.querySelector('form[name="addTimeForm"]')) {
@@ -25,8 +36,11 @@
 
         console.log('Got user id ' + userId);
         chrome.runtime.sendMessage(
-            {contentScriptQuery: "getHours", userId: userId},
-            hours =>
-                console.log(`Received ${hours.length} hours ` + JSON.stringify(hours)));
+            {contentScriptQuery: "getTimes", userId: userId},
+            times => {
+                times = groupByWeek(times);
+                console.log(`Received ${times.length} times ` + JSON.stringify(times));
+                return times;
+            });
     });
 })();

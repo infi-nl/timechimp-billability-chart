@@ -11,8 +11,8 @@ chrome.cookies.onChanged.addListener(function(changeInfo) {
 });
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    if (message.contentScriptQuery == "getHours") {
-        console.log('Getting hours');
+    if (message.contentScriptQuery == "getTimes") {
+        console.log('Getting times');
         const pastWeeks = message.pastWeeks ? message.pastWeeks : 5;
         const weekMs = 1000 * 60 * 60 * 24 * 7;
         const startDate = new Date().setTime(new Date() - (pastWeeks * weekMs));
@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         const endDateString = toTimeChimpApiDate(new Date());
 
         const url = `https://app.timechimp.com/api/time/daterange/${startDateString}/${endDateString}`;
-        console.log(`Getting hours from url: ${url}`);
+        console.log(`Getting times from url: ${url}`);
         fetch(url).then(response => response.json()).then()
             .then(json => json.filter(e => e.userId === message.userId)).then(json => sendResponse(json))
             .catch(error => console.log(error));
