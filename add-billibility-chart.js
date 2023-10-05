@@ -1,22 +1,32 @@
-console.log('Adding billibility chart');
-const addTimePanel = document.querySelector('.col-md-4');
-console.log('hier');
-
 (async function main() {
-    console.log('Async');
-    if (!addTimePanel || !addTimePanel.querySelector('form[name="addTimeForm"]')) {
-        //console.log('Not found, ignoring');
-    } else {
-        console.log('Found, adding card body');
-        const card= document.createElement("div");
+    function createCard() {
+        const card = document.createElement("div");
         card.className = "card";
         const cardBody = document.createElement("div");
         cardBody.className = "card-body";
-        cardBody.innerText = 'test123';
         card.appendChild(cardBody);
-        addTimePanel.appendChild(card);
-        charts(card);
-        const response = await chrome.runtime.sendMessage({contentScriptQuery: "getHours"});
-        console.log('GOT RESPONSE ' + JSON.stringify((response)));
+        return card;
     }
+
+    console.log('Starting extension');
+    const addTimePanel = document.querySelector('.col-md-4');
+    if (!addTimePanel || !addTimePanel.querySelector('form[name="addTimeForm"]')) {
+        console.log('Not found, returning');
+        return;
+    }
+
+    console.log('Add time form found, adding charts');
+    const card = createCard();
+    addTimePanel.appendChild(card);
+    charts(card);
+    chrome.storage.local.get(["userName"])
+            .then(result => result.userName)
+            .then((userName) => {
+
+        console.log('Got username ' + userName);
+        chrome.runtime.sendMessage(
+            {contentScriptQuery: "getHours", userName: userName},
+            hours =>
+                console.log('Received hours ' + JSON.stringify(hours)));
+    });
 })();

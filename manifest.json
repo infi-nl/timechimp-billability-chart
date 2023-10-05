@@ -4,7 +4,9 @@
   "version": "1.0",
   "manifest_version": 3,
   "permissions": [
-    "tabs"
+    "tabs",
+    "cookies",
+    "storage"
   ],
   "content_scripts": [
     {
@@ -19,9 +21,6 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": "timechimp.png"
-  },
-  "host_permissions": [
-    "https://api.timechimp.com/"
-  ]
+  }
 }
 
