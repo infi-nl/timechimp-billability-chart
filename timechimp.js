@@ -4,22 +4,30 @@ chrome.cookies.onChanged.addListener(function(changeInfo) {
         const url = "https://app.timechimp.com/api/user/current";
         fetch(url).then(response => response.json())
             .then(responseJson => {
-                console.log('Logged in with username ' + responseJson.userName);
-                chrome.storage.local.set({userName: responseJson.userName});
+                console.log('Logged in with user id ' + responseJson.id);
+                chrome.storage.local.set({timeChimpUserId: responseJson.id});
             }).catch(error => console.log(error));
     }
 });
 
-chrome.runtime.onMessage.addListener(
-    function(message, sender, sendResponse) {
-
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    if (message.contentScriptQuery == "getHours") {
         console.log('Getting hours');
-        if (message.contentScriptQuery == "getHours") {
-            const url = `https://app.timechimp.com/api/time/week/${message.userName}/2023-10-02`;
-            console.log("Getting hours from url: " + url);
-            fetch(url).then(response => response.json())
-                .then(json => sendResponse(json))
-                .catch(error => console.log(error));
-            return true;  // Will respond asynchronously.
-        }
-    });
+        const pastWeeks = message.pastWeeks ? message.pastWeeks : 5;
+        const weekMs = 1000 * 60 * 60 * 24 * 7;
+        const startDate = new Date().setTime(new Date() - (pastWeeks * weekMs));
+        const startDateString = toTimeChimpApiDate(startDate);
+        const endDateString = toTimeChimpApiDate(new Date());
+
+        const url = `https://app.timechimp.com/api/time/daterange/${startDateString}/${endDateString}`;
+        console.log(`Getting hours from url: ${url}`);
+        fetch(url).then(response => response.json()).then()
+            .then(json => json.filter(e => e.userId === message.userId)).then(json => sendResponse(json))
+            .catch(error => console.log(error));
+        return true; // Dummy return, will respond asynchronously.
+    }
+});
+
+function toTimeChimpApiDate(startDate) {
+    return new Date(startDate).toISOString().slice(0, 10);
+}

@@ -1,4 +1,4 @@
-(async function main() {
+(function main() {
     function createCard() {
         const card = document.createElement("div");
         card.className = "card";
@@ -19,14 +19,14 @@
     const card = createCard();
     addTimePanel.appendChild(card);
     charts(card);
-    chrome.storage.local.get(["userName"])
-            .then(result => result.userName)
-            .then((userName) => {
+    chrome.storage.local.get(["timeChimpUserId"])
+            .then(result => result.timeChimpUserId)
+            .then((userId) => {
 
-        console.log('Got username ' + userName);
+        console.log('Got user id ' + userId);
         chrome.runtime.sendMessage(
-            {contentScriptQuery: "getHours", userName: userName},
+            {contentScriptQuery: "getHours", userId: userId},
             hours =>
-                console.log('Received hours ' + JSON.stringify(hours)));
+                console.log(`Received ${hours.length} hours ` + JSON.stringify(hours)));
     });
 })();
