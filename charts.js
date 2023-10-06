@@ -7,13 +7,7 @@ function charts(element) {
             type: 'column'
         },
         title: {
-            text: 'Corn vs wheat estimated production for 2020',
-            align: 'left'
-        },
-        subtitle: {
-            text:
-                'Source: <a target="_blank" ' +
-                'href="https://www.indexmundi.com/agriculture/?commodity=corn">indexmundi</a>',
+            text: 'Facturabiliteit',
             align: 'left'
         },
         xAxis: {

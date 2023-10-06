@@ -8,7 +8,7 @@
         return card;
     }
 
-    function groupByWeek(times) {
+    function enrichForChart(times) {
         // Add week numbers
         const timesWithWeeks = times.map(time => {
             time.week = moment(time["date"]).format('W');
@@ -16,6 +16,29 @@
         });
         // Group by week
         const timesGroupedByWeek = Object.groupBy(timesWithWeeks, ({ week }) => week);
+
+        // Move times within time attribute
+        for (const week in timesGroupedByWeek) {
+            timesGroupedByWeek[week] = {"times": timesGroupedByWeek[week]};
+        }
+
+        for (const week in timesGroupedByWeek) {
+            const weekSummary = timesGroupedByWeek[week];
+            weekSummary['billableHours'] = 0;
+            weekSummary['nonBillableHours'] = 0;
+            weekSummary['totalHours'] = 0;
+            weekSummary.times.forEach(time => {
+                const hoursType = time.billable ? 'billableHours' : 'nonBillableHours';
+                weekSummary[hoursType] += time.hours;
+                weekSummary['totalHours'] += time.hours;
+                return;
+            });
+            weekSummary['billableHoursPercentage'] = (100 * weekSummary['billableHours']) / weekSummary['totalHours'];
+            weekSummary['nonBillableHoursPercentage'] = 100 - weekSummary['billableHoursPercentage'];
+            weekSummary['totalHoursPercentage'] = 100;
+        }
+
+        //billable
         return timesGroupedByWeek;
     }
 
@@ -38,7 +61,7 @@
         chrome.runtime.sendMessage(
             {contentScriptQuery: "getTimes", userId: userId},
             times => {
-                times = groupByWeek(times);
+                times = enrichForChart(times);
                 console.log(`Received ${times.length} times ` + JSON.stringify(times));
                 return times;
             });
