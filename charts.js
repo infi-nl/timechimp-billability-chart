@@ -1,4 +1,4 @@
-function charts(element) {
+function addBillibilityChart(element) {
     console.log('Creating chart');
     element.innerHTML = '<figure class="highcharts-figure"><div id="container"></div> <p class="highcharts-description">A basic column chart.</p></figure>';
 
@@ -18,10 +18,7 @@ function charts(element) {
             }
         },
         yAxis: {
-            min: 0,
-            title: {
-                text: '1000 metric tons (MT)'
-            }
+            min: 0
         },
         tooltip: {
             valueSuffix: ' (1000 MT)'
