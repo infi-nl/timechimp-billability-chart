@@ -1,6 +1,16 @@
-function addBillibilityChart(element) {
+function addBillibilityChart(element, timesGroupedByWeek) {
     console.log('Creating chart');
-    element.innerHTML = '<figure class="highcharts-figure"><div id="container"></div> <p class="highcharts-description">A basic column chart.</p></figure>';
+    timess = [];
+    billableHours = [];
+    nonBillableHours = [];
+    for (week of Object.keys(timesGroupedByWeek)) {
+        const weekSummary = timesGroupedByWeek[week];
+        billableHours.push(weekSummary.billableHoursPercentage);
+        nonBillableHours.push(weekSummary.nonBillableHoursPercentage);
+    }
+    console.log('Billable hours ' + JSON.stringify(billableHours));
+    console.log('Non billable hours ' + JSON.stringify(billableHours));
+    element.innerHTML = '<figure class="highcharts-figure"><div id="container"></div></figure>';
 
     Highcharts.chart('container', {
         chart: {
@@ -11,34 +21,33 @@ function addBillibilityChart(element) {
             align: 'left'
         },
         xAxis: {
-            categories: ['USA', 'China', 'Brazil', 'EU', 'India', 'Russia'],
-            crosshair: true,
-            accessibility: {
-                description: 'Countries'
-            }
+            categories: Object.keys(timesGroupedByWeek),
+            title: {
+                text: 'Week'
+            },
         },
         yAxis: {
-            min: 0
+            min: 0,
+            max: 100,
+            title: {
+                text: 'Percentage'
+            },
         },
         tooltip: {
-            valueSuffix: ' (1000 MT)'
+            valueSuffix: '%'
         },
         plotOptions: {
             column: {
-                pointPadding: 0.2,
-                borderWidth: 0
+                stacking: 'normal'
             }
         },
-        series: [
-            {
-                name: 'Corn',
-                data: [406292, 260000, 107000, 68300, 27500, 14500]
-            },
-            {
-                name: 'Wheat',
-                data: [51086, 136000, 5500, 141000, 107180, 77000]
-            }
-        ]
+        series: [{
+            name: 'Facturabel',
+            data: billableHours
+        }, {
+            name: 'Niet facturabel',
+            data: nonBillableHours
+        }]
     });
 
     return;

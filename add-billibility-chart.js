@@ -34,27 +34,20 @@
     }
 
     function enrichForChart(times) {
-        // Add week numbers
-        const timesWithWeeks = times.map(time => {
-            time.week = moment(time["date"]).format('W');
-            return time;
-        });
-        // Group by week
-        const timesGroupedByWeek = Object.groupBy(timesWithWeeks, ({ week }) => week);
-
+        // Group by week, add times within "times" attribute.
         // Move times within time attribute
-        for (const week in timesGroupedByWeek) {
-            timesGroupedByWeek[week] = {"times": timesGroupedByWeek[week]};
-        }
+        const timesGroupedByWeek = times.reduce((acc, time) => {
+            const week = moment(time.date).format('W');
+            acc[week] = acc[week] ?? {'times' : []};
+            acc[week]['times'].push(time);
+            return acc;
+        }, {});
 
         // Add metrics billable, non billable and total hours, and associated percentages.
-        for (const week in timesGroupedByWeek) {
-            const weekSummary = timesGroupedByWeek[week];
+        for (const [week, weekSummary] of Object.entries(timesGroupedByWeek)) {
             addHoursMetrics(weekSummary);
             addHoursPercentages(weekSummary);
         }
-
-        //billable
         return timesGroupedByWeek;
     }
 
@@ -77,8 +70,7 @@
             {contentScriptQuery: "getTimes", userId: userId},
             times => {
                 times = enrichForChart(times);
-                console.log(`Received ${times.length} times ` + JSON.stringify(times));
-                addBillibilityChart(card);
+                addBillibilityChart(card, times);
                 return times;
             });
     });
