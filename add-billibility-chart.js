@@ -33,18 +33,48 @@
         weekSummary['totalHoursPercentage'] = 100;
     }
 
-    function enrichForChart(times) {
-        // Group by week, add times within "times" attribute.
-        // Move times within time attribute
-        const timesGroupedByWeek = times.reduce((acc, time) => {
-            const week = moment(time.date).format('W');
+    function getWeek(date) {
+        return moment(date).format('W');
+    }
+
+    // Group by week, add times within a new object's "times" attribute.
+    function enrichWithWeeks(times) {
+        return times.reduce((acc, time) => {
+            const week = getWeek(time.date);
             acc[week] = acc[week] ?? {'times' : []};
             acc[week]['times'].push(time);
             return acc;
         }, {});
+    }
 
+    function enrichWithAverages(timesGroupedByWeek) {
+        const weeks = Object.keys(timesGroupedByWeek).reverse();
+        const enrichedWithAverages = {};
+        for (let i = 0; i < weeks.length && i < 5; i++) {
+            const week = weeks[i];
+            const weekSummary = timesGroupedByWeek[week];
+            let weekNumber = parseInt(week);
+
+            weekNumber++;
+            let currentWeek = 0;
+            let weeksAdded = 0;
+            let billableHoursLastWeeks = [];
+            while (weeksAdded <= 4 && weekNumber in timesGroupedByWeek) {
+                const weekSummary = timesGroupedByWeek[weekNumber];
+                billableHoursLastWeeks.push(weekSummary.billableHoursPercentage);
+                weeksAdded++;
+            }
+            const billableHoursTotal = billableHoursLastWeeks.reduce((acc, value) => acc + value, 0);
+            weekSummary['averageBillableHours'] = billableHoursTotal / billableHoursLastWeeks.length;
+            enrichedWithAverages[week] = weekSummary;
+        }
+        return enrichedWithAverages;
+    }
+
+    // Add metrics billable, non billable and total hours, and associated percentages.
+    function enrichWithMetrics(timesGroupedByWeek) {
         // Add metrics billable, non billable and total hours, and associated percentages.
-        for (const [week, weekSummary] of Object.entries(timesGroupedByWeek)) {
+        for (const weekSummary of Object.values(timesGroupedByWeek)) {
             addHoursMetrics(weekSummary);
             addHoursPercentages(weekSummary);
         }
@@ -69,9 +99,11 @@
         chrome.runtime.sendMessage(
             {contentScriptQuery: "getTimes", userId: userId},
             times => {
-                times = enrichForChart(times);
-                addBillibilityChart(card, times);
-                return times;
+                const timesGroupedByWeek = enrichWithWeeks(times);
+                const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
+                const timesGroupedWithAvgs = enrichWithAverages(timesGroupedWithMetrics);
+                addBillibilityChart(card, timesGroupedWithAvgs);
+                return timesGroupedWithMetrics;
             });
     });
 })();

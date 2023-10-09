@@ -14,9 +14,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message.contentScriptQuery == "getTimes") {
         console.log('Getting times');
         // Gets 5 weeks which is the current week plus four weeks in the past
-        const pastWeeks = message.pastWeeks ? message.pastWeeks : 4;
+        const pastWeeks = message.pastWeeks ? message.pastWeeks : 5;
+        // Additional 4 weeks to calculate the average. Get 2 times 4 weeks in order to skip weeks with only leave
+        //const extraWeeksForAverage = 4 * 2;
+        const extraWeeksForAverage = 4 * 2;
         const weekMs = 1000 * 60 * 60 * 24 * 7;
-        const startDate = new Date().setTime(new Date() - (pastWeeks * weekMs));
+        const startDate = new Date().setTime(new Date() - ((pastWeeks + extraWeeksForAverage) * weekMs));
         const startDateString = toTimeChimpApiDate(startDate);
         const endDateString = toTimeChimpApiDate(new Date());
 
