@@ -47,25 +47,51 @@
         }, {});
     }
 
+    function isLeaveOnlyWeek(weekSummary) {
+        return !weekSummary.times.some(time => time.taskName != 'Verlof');
+    }
+
     function enrichWithAverages(timesGroupedByWeek) {
         const weeks = Object.keys(timesGroupedByWeek).reverse();
-        const enrichedWithAverages = {};
-        for (let i = 0; i < weeks.length && i < 5; i++) {
-            const week = weeks[i];
-            const weekSummary = timesGroupedByWeek[week];
-            let weekNumber = parseInt(week);
 
-            weekNumber++;
-            let currentWeek = 0;
+        // Calculate averages for first 5 weeks, only for the latest weeks.
+        console.log("Enriching weeks" + JSON.stringify(weeks));
+        const weeksToDisplay = weeks.slice(0, weeks.length < 5 ? weeks.length : 5);
+        console.log("Enriching weeks to display" + JSON.stringify(weeksToDisplay));
+        console.log(JSON.stringify(timesGroupedByWeek["16"]));
+        console.log(JSON.stringify(timesGroupedByWeek["17"]));
+        const enrichedWithAverages = {};
+
+        for (let i = 0; i < weeksToDisplay.length; i++) {
+            const week = weeksToDisplay[i];
+            const weekSummary = timesGroupedByWeek[week];
+            let weekNumber = parseInt(week) - 1;
+
             let weeksAdded = 0;
             let billableHoursLastWeeks = [];
-            while (weeksAdded <= 4 && weekNumber in timesGroupedByWeek) {
+            const weeksNumbers = []; // For logging only
+            console.log(weeksAdded + ' ' + weekNumber + ' ' + ' ' + JSON.stringify(weeks) + '  ' + weeks.includes(weekNumber.toString()));
+            while (weeksAdded < 4 && weeks.includes(weekNumber.toString())) {
+                console.log('Week ' + weekNumber);
                 const weekSummary = timesGroupedByWeek[weekNumber];
-                billableHoursLastWeeks.push(weekSummary.billableHoursPercentage);
+                // Only add if there are any billable hours
+                if (weeksToDisplay.includes(weekNumber.toString()) || !isLeaveOnlyWeek(weekSummary)) {
+                    billableHoursLastWeeks.push(weekSummary.billableHoursPercentage);
+                    weeksNumbers.push(weekNumber);
+                } else {
+                    console.log(`Skipping leave only week ${weekNumber}: ${JSON.stringify(weekSummary)}`);
+                }
                 weeksAdded++;
+                weekNumber--;
             }
+
+            // Sum total billable hours
             const billableHoursTotal = billableHoursLastWeeks.reduce((acc, value) => acc + value, 0);
-            weekSummary['averageBillableHours'] = billableHoursTotal / billableHoursLastWeeks.length;
+            // Calculate average and prevent divide by zero
+            const averageBillableHours = billableHoursTotal ? billableHoursTotal / billableHoursLastWeeks.length: 0;
+            weekSummary['averageBillableHours'] = averageBillableHours;
+            console.log(`Adding week ${week} with ${averageBillableHours} average hours`);
+            console.log(`Calculated on basis of ${billableHoursLastWeeks.length} values ${JSON.stringify(billableHoursLastWeeks)}, from weeks ${JSON.stringify(weeksNumbers)}`);
             enrichedWithAverages[week] = weekSummary;
         }
         return enrichedWithAverages;
@@ -101,8 +127,8 @@
             times => {
                 const timesGroupedByWeek = enrichWithWeeks(times);
                 const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
-                const timesGroupedWithAvgs = enrichWithAverages(timesGroupedWithMetrics);
-                addBillibilityChart(card, timesGroupedWithAvgs);
+                const timesGroupedWithAverages = enrichWithAverages(timesGroupedWithMetrics);
+                addBillibilityChart(card, timesGroupedWithAverages);
                 return timesGroupedWithMetrics;
             });
     });
