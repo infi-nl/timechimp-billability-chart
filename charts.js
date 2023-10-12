@@ -1,16 +1,18 @@
 function addBillibilityChart(element, timesGroupedByWeek) {
     console.log('Creating chart on basis of ' + JSON.stringify(timesGroupedByWeek));
-    timess = [];
-    billableHours = [];
-    nonBillableHours = [];
+    const billableHours = [];
+    const nonBillableHours = [];
+    const averageBillableHours = [];
     for (week of Object.keys(timesGroupedByWeek)) {
         const weekSummary = timesGroupedByWeek[week];
         billableHours.push(weekSummary.billableHoursPercentage);
         nonBillableHours.push(weekSummary.nonBillableHoursPercentage);
+        averageBillableHours.push(weekSummary.averageBillableHours);
     }
     console.log('Billable hours ' + JSON.stringify(billableHours));
     console.log('Non billable hours ' + JSON.stringify(billableHours));
     element.innerHTML = '<figure class="highcharts-figure"><div id="container"></div></figure>';
+
 
     Highcharts.chart('container', {
         chart: {
@@ -47,6 +49,11 @@ function addBillibilityChart(element, timesGroupedByWeek) {
         }, {
             name: 'Niet facturabel',
             data: nonBillableHours
+        },
+        {
+            name: 'Gemiddelde facturabiliteit afgelopen ',
+            type: 'spline',
+            data: averageBillableHours
         }]
     });
 
