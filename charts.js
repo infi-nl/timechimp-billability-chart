@@ -1,4 +1,4 @@
-function addBillibilityChart(element, timesGroupedByWeek) {
+function showBillibilityChart(element, timesGroupedByWeek) {
     console.log('Creating chart on basis of ' + JSON.stringify(timesGroupedByWeek));
     const billableHours = [];
     const nonBillableHours = [];

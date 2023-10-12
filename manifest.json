@@ -6,7 +6,11 @@
   "permissions": [
     "tabs",
     "cookies",
-    "storage"
+    "storage",
+    "webRequest"
+  ],
+  "host_permissions" : [
+    "*://app.timechimp.com/*"
   ],
   "content_scripts": [
     {

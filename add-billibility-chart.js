@@ -1,4 +1,4 @@
-(function main() {
+const billibilityChart = (function main() {
     function createCard() {
         const card = document.createElement("div");
         card.className = "card";
@@ -55,11 +55,7 @@
         const weeks = Object.keys(timesGroupedByWeek).reverse();
 
         // Calculate averages for first 5 weeks, only for the latest weeks.
-        console.log("Enriching weeks" + JSON.stringify(weeks));
         const weeksToDisplay = weeks.slice(0, weeks.length < 5 ? weeks.length : 5);
-        console.log("Enriching weeks to display" + JSON.stringify(weeksToDisplay));
-        console.log(JSON.stringify(timesGroupedByWeek["16"]));
-        console.log(JSON.stringify(timesGroupedByWeek["17"]));
         const enrichedWithAverages = {};
 
         for (let i = 0; i < weeksToDisplay.length; i++) {
@@ -72,7 +68,6 @@
             const weeksNumbers = []; // For logging only
             console.log(weeksAdded + ' ' + weekNumber + ' ' + ' ' + JSON.stringify(weeks) + '  ' + weeks.includes(weekNumber.toString()));
             while (weeksAdded < 4 && weeks.includes(weekNumber.toString())) {
-                console.log('Week ' + weekNumber);
                 const weekSummary = timesGroupedByWeek[weekNumber];
                 // Only add if there are any billable hours
                 if (weeksToDisplay.includes(weekNumber.toString()) || !isLeaveOnlyWeek(weekSummary)) {
@@ -107,29 +102,44 @@
         return timesGroupedByWeek;
     }
 
-    console.log('Starting extension');
-    const addTimePanel = document.querySelector('.col-md-4');
-    if (!addTimePanel || !addTimePanel.querySelector('form[name="addTimeForm"]')) {
-        console.log('Not found, returning');
-        return;
-    }
+    function addBillibilityChart(date) {
+        console.log('Starting extension');
+        const addTimePanel = document.querySelector('.col-md-4');
+        if (!addTimePanel || !addTimePanel.querySelector('form[name="addTimeForm"]')) {
+            console.log('Not found, returning');
+            return;
+        }
 
-    console.log('Add time form found, adding charts');
-    const card = createCard();
-    addTimePanel.appendChild(card);
-    chrome.storage.local.get(["timeChimpUserId"])
+        console.log('Add time form found, adding charts');
+        const card = createCard();
+        addTimePanel.appendChild(card);
+        chrome.storage.local.get(["timeChimpUserId"])
             .then(result => result.timeChimpUserId)
             .then((userId) => {
 
-        console.log('Got user id ' + userId);
-        chrome.runtime.sendMessage(
-            {contentScriptQuery: "getTimes", userId: userId},
-            times => {
-                const timesGroupedByWeek = enrichWithWeeks(times);
-                const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
-                const timesGroupedWithAverages = enrichWithAverages(timesGroupedWithMetrics);
-                addBillibilityChart(card, timesGroupedWithAverages);
-                return timesGroupedWithMetrics;
+                console.log('Got user id ' + userId);
+                chrome.runtime.sendMessage(
+                    {contentScriptQuery: "getTimes", userId: userId, date: date},
+                    times => {
+                        const timesGroupedByWeek = enrichWithWeeks(times);
+                        const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
+                        const timesGroupedWithAverages = enrichWithAverages(timesGroupedWithMetrics);
+                        showBillibilityChart(card, timesGroupedWithAverages);
+                        return timesGroupedWithMetrics;
+                    });
             });
-    });
+    }
+    addBillibilityChart();
+    return {
+        add: addBillibilityChart
+    }
 })();
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log(JSON.stringify(request));
+    const date = new Date(request['args']);
+    console.log('Changed weeks. Date currently selected: ' + date);
+    billibilityChart.add(date);
+    sendResponse();
+    return true;
+});
