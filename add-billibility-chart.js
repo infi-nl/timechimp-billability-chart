@@ -48,7 +48,7 @@
     }
 
     function isLeaveOnlyWeek(weekSummary) {
-        return !weekSummary.times.some(time => time.taskName != 'Verlof');
+        return !weekSummary.times.some(time => time.taskName != 'Verlof' && time.taskName != 'Feestdag');
     }
 
     function enrichWithAverages(timesGroupedByWeek) {
