@@ -51,9 +51,12 @@ function addBillibilityChart(element, timesGroupedByWeek) {
             data: nonBillableHours
         },
         {
-            name: 'Gemiddelde facturabiliteit afgelopen ',
+            name: 'Gemiddelde facturabiliteit ',
             type: 'spline',
-            data: averageBillableHours
+            data: averageBillableHours,
+            tooltip: {
+                valueSuffix: '% (afgelopen 5 weken)'
+            }
         }]
     });
 
