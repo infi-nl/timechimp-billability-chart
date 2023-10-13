@@ -61,32 +61,34 @@ const billabilityChart = (function main() {
         for (let i = 0; i < weeksToDisplay.length; i++) {
             const week = weeksToDisplay[i];
             const weekSummary = timesGroupedByWeek[week];
+            const leaveOnlyWeek = isLeaveOnlyWeek(weekSummary) ? 'leave only ' : '';
             let weekNumber = parseInt(week) - 1;
 
             let weeksAdded = 0;
             let billableHoursLastWeeks = [];
             const weeksNumbers = []; // For logging only
-            console.log(weeksAdded + ' ' + weekNumber + ' ' + ' ' + JSON.stringify(weeks) + '  ' + weeks.includes(weekNumber.toString()));
             while (weeksAdded < 4 && weeks.includes(weekNumber.toString())) {
                 const weekSummary = timesGroupedByWeek[weekNumber];
                 // Only add if there are any billable hours
-                if (weeksToDisplay.includes(weekNumber.toString()) || !isLeaveOnlyWeek(weekSummary)) {
+                if (weeksToDisplay.includes(weekNumber.toString()) && !isLeaveOnlyWeek(weekSummary)) {
                     billableHoursLastWeeks.push(weekSummary.billableHoursPercentage);
                     weeksNumbers.push(weekNumber);
+                    weeksAdded++;
                 } else {
-                    console.log(`Skipping leave only week ${weekNumber}: ${JSON.stringify(weekSummary)}`);
+                    console.log(`Skipping leave only week ${weekNumber}`);
                 }
-                weeksAdded++;
                 weekNumber--;
             }
 
             // Sum total billable hours
             const billableHoursTotal = billableHoursLastWeeks.reduce((acc, value) => acc + value, 0);
             // Calculate average and prevent divide by zero
-            const averageBillableHours = billableHoursTotal ? billableHoursTotal / billableHoursLastWeeks.length: 0;
+            let averageBillableHours = billableHoursTotal ? billableHoursTotal / billableHoursLastWeeks.length: 0;
+            averageBillableHours = parseFloat(averageBillableHours.toFixed(2));
             weekSummary['averageBillableHours'] = averageBillableHours;
-            console.log(`Adding week ${week} with ${averageBillableHours} average hours`);
-            console.log(`Calculated on basis of ${billableHoursLastWeeks.length} values ${JSON.stringify(billableHoursLastWeeks)}, from weeks ${JSON.stringify(weeksNumbers)}`);
+            console.log(`Adding ${leaveOnlyWeek}week ${week} with ${averageBillableHours} average billable hours. ` +
+                `Calculated On basis of of ${billableHoursLastWeeks.length} values ` +
+                `${JSON.stringify(billableHoursLastWeeks)}, from weeks ${JSON.stringify(weeksNumbers)}`);
             enrichedWithAverages[week] = weekSummary;
         }
         return enrichedWithAverages;
