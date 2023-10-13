@@ -1,5 +1,15 @@
-function showBillibilityChart(element, timesGroupedByWeek) {
-    console.log('Creating chart on basis of ' + JSON.stringify(timesGroupedByWeek));
+function addBillabilityContainer(element) {
+    const figure = document.createElement("figure");
+    figure.className = "highcharts-figure";
+    const cardBody = document.createElement("div");
+    cardBody.id = "highcharts-container";
+    figure.appendChild(cardBody);
+    element.appendChild(figure);
+    return cardBody;
+}
+
+function showBillabilityChart(element, timesGroupedByWeek) {
+    console.log('Creating billability chart');
     const billableHours = [];
     const nonBillableHours = [];
     const averageBillableHours = [];
@@ -11,10 +21,7 @@ function showBillibilityChart(element, timesGroupedByWeek) {
     }
     console.log('Billable hours ' + JSON.stringify(billableHours));
     console.log('Non billable hours ' + JSON.stringify(billableHours));
-    element.innerHTML = '<figure class="highcharts-figure"><div id="container"></div></figure>';
-
-
-    Highcharts.chart('container', {
+    Highcharts.chart(element, {
         chart: {
             type: 'column'
         },

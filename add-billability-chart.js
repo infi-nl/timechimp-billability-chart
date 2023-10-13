@@ -113,14 +113,11 @@ const billabilityChart = (function main() {
         }
 
         console.log('Add time form found, adding charts');
-        const existingCard = addTimePanel.querySelector('.card figure');
+        let chartContainer = addTimePanel.querySelector('#highcharts-container');
         let card = createCard();
-        if (!existingCard) {
+        if (!chartContainer) {
             console.log('No existing billability chard, adding one');
-            addTimePanel.appendChild(card);
-        } else {
-            console.log('Updating existing billability chard');
-            card = addTimePanel.querySelector('.card:last-child');
+            chartContainer = addBillabilityContainer(addTimePanel);
         }
 
         chrome.storage.local.get(["timeChimpUserId"])
@@ -133,7 +130,7 @@ const billabilityChart = (function main() {
                         const timesGroupedByWeek = enrichWithWeeks(times);
                         const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
                         const timesGroupedWithAverages = enrichWithAverages(timesGroupedWithMetrics);
-                        showBillibilityChart(card, timesGroupedWithAverages);
+                        showBillabilityChart(chartContainer, timesGroupedWithAverages);
                         return timesGroupedWithMetrics;
                     });
             });
