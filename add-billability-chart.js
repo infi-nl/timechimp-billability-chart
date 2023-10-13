@@ -1,5 +1,5 @@
 const billabilityChart = (function main() {
-    function createCard() {
+    const createCard = function() {
         const card = document.createElement("div");
         card.className = "card";
         const cardBody = document.createElement("div");
@@ -84,7 +84,7 @@ const billabilityChart = (function main() {
             const billableHoursTotal = billableHoursLastWeeks.reduce((acc, value) => acc + value, 0);
             // Calculate average and prevent divide by zero
             let averageBillableHours = billableHoursTotal ? billableHoursTotal / billableHoursLastWeeks.length: 0;
-            averageBillableHours = parseFloat(averageBillableHours.toFixed(2));
+            averageBillableHours = toFloatTwoDigits(averageBillableHours);
             weekSummary['averageBillableHours'] = averageBillableHours;
             console.log(`Adding ${leaveOnlyWeek}week ${week} with ${averageBillableHours} average billable hours. ` +
                 `Calculated On basis of of ${billableHoursLastWeeks.length} values ` +
