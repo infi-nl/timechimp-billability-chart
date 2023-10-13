@@ -40,13 +40,15 @@ function toTimeChimpApiDate(startDate) {
 /**
  * Listens to requests that indicate the week has changed, and the billability should be recalculated.
  */
-chrome.webRequest.onCompleted.addListener((request, sender, sendResponse) => {
+async: chrome.webRequest.onCompleted.addListener((request, sender, sendResponse) => {
         const url = request.url;
         if (url.match('.*/time/week/[^/]+/.*')) {
             const lastSlashIndex = url.lastIndexOf('/')
             const date = url.substring(lastSlashIndex + 1);
-            chrome.tabs.sendMessage(request.tabId, {args: date});
+            return chrome.tabs.sendMessage(request.tabId, {args: date})
+                .catch(() => console.log('Contents script not loaded yet. No issue, we can use the current date for the initial page load.'));
         }
+        return;
     }, {
         urls: ['https://app.timechimp.com/api/time/week/*']
     }
