@@ -111,12 +111,19 @@ const billibilityChart = (function main() {
         }
 
         console.log('Add time form found, adding charts');
-        const card = createCard();
-        addTimePanel.appendChild(card);
-        chrome.storage.local.get(["timeChimpUserId"])
-            .then(result => result.timeChimpUserId)
-            .then((userId) => {
+        const existingCard = addTimePanel.querySelector('.card figure');
+        let card = createCard();
+        if (!existingCard) {
+            console.log('No existing billability chard, adding one');
+            addTimePanel.appendChild(card);
+        } else {
+            console.log('Updating existing billability chard');
+            card = addTimePanel.querySelector('.card:last-child');
+        }
 
+        chrome.storage.local.get(["timeChimpUserId"])
+            .then((result) => result.timeChimpUserId)
+            .then((userId) => {
                 console.log('Got user id ' + userId);
                 chrome.runtime.sendMessage(
                     {contentScriptQuery: "getTimes", userId: userId, date: date},
@@ -136,7 +143,6 @@ const billibilityChart = (function main() {
 })();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(JSON.stringify(request));
     const date = new Date(request['args']);
     console.log('Changed weeks. Date currently selected: ' + date);
     billibilityChart.add(date);
