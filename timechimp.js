@@ -11,6 +11,10 @@ chrome.cookies.onChanged.addListener(function(changeInfo) {
 });
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    const toTimeChimpApiDate = function(startDate) {
+        return new Date(startDate).toISOString().slice(0, 10);
+    }
+
     if (message.contentScriptQuery == "getTimes") {
         // Gets 5 weeks which is the current week plus four weeks in the past
         const pastWeeks = message.pastWeeks ? message.pastWeeks : 5;
@@ -33,14 +37,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
 });
 
-function toTimeChimpApiDate(startDate) {
-    return new Date(startDate).toISOString().slice(0, 10);
-}
+
 
 /**
  * Listens to requests that indicate the week has changed, and the billability should be recalculated.
  */
-async: chrome.webRequest.onCompleted.addListener((request, sender, sendResponse) => {
+chrome.webRequest.onCompleted.addListener((request, sender, sendResponse) => {
         const url = request.url;
         if (url.match('.*/time/week/[^/]+/.*')) {
             const lastSlashIndex = url.lastIndexOf('/')

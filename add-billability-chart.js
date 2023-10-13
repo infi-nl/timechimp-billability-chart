@@ -1,4 +1,4 @@
-const billabilityChart = (function main() {
+const billabilityChart = (function () {
     const createCard = function() {
         const card = document.createElement("div");
         card.className = "card";
@@ -8,12 +8,12 @@ const billabilityChart = (function main() {
         return card;
     }
 
-    function toFloatTwoDigits(number) {
+    const toFloatTwoDigits = function(number) {
         return parseFloat(number.toFixed(2));
     }
 
     // Add metrics billable, non billable and total hours
-    function addHoursMetrics(weekSummary) {
+    const addHoursMetrics = function(weekSummary) {
         weekSummary['billableHours'] = 0;
         weekSummary['nonBillableHours'] = 0;
         weekSummary['totalHours'] = 0;
@@ -26,19 +26,19 @@ const billabilityChart = (function main() {
     }
 
     // Add for metrics billable, non billable and total hours, the percentages
-    function addHoursPercentages(weekSummary) {
+    const addHoursPercentages = function(weekSummary) {
         const billableHoursPercentage = (100 * weekSummary['billableHours']) / weekSummary['totalHours'];
         weekSummary['billableHoursPercentage'] = toFloatTwoDigits(billableHoursPercentage);
         weekSummary['nonBillableHoursPercentage'] = toFloatTwoDigits(100 - weekSummary['billableHoursPercentage']);
         weekSummary['totalHoursPercentage'] = 100;
     }
 
-    function getWeek(date) {
+    const getWeek = function(date)  {
         return moment(date).format('W');
     }
 
     // Group by week, add times within a new object's "times" attribute.
-    function enrichWithWeeks(times) {
+    const enrichWithWeeks = function(times) {
         return times.reduce((acc, time) => {
             const week = getWeek(time.date);
             acc[week] = acc[week] ?? {'times' : []};
@@ -47,11 +47,11 @@ const billabilityChart = (function main() {
         }, {});
     }
 
-    function isLeaveOnlyWeek(weekSummary) {
+    const isLeaveOnlyWeek = function(weekSummary) {
         return !weekSummary.times.some(time => time.taskName != 'Verlof' && time.taskName != 'Feestdag');
     }
 
-    function enrichWithAverages(timesGroupedByWeek) {
+    const enrichWithAverages = function(timesGroupedByWeek) {
         const weeks = Object.keys(timesGroupedByWeek).reverse();
 
         // Calculate averages for first 5 weeks, only for the latest weeks.
@@ -95,7 +95,7 @@ const billabilityChart = (function main() {
     }
 
     // Add metrics billable, non billable and total hours, and associated percentages.
-    function enrichWithMetrics(timesGroupedByWeek) {
+    const enrichWithMetrics = function(timesGroupedByWeek) {
         // Add metrics billable, non billable and total hours, and associated percentages.
         for (const weekSummary of Object.values(timesGroupedByWeek)) {
             addHoursMetrics(weekSummary);
@@ -104,7 +104,7 @@ const billabilityChart = (function main() {
         return timesGroupedByWeek;
     }
 
-    function addBillabilityChart(date) {
+    const addBillabilityChart = function(date) {
         console.log('Starting extension');
         const addTimePanel = document.querySelector('.col-md-4');
         if (!addTimePanel || !addTimePanel.querySelector('form[name="addTimeForm"]')) {
@@ -117,7 +117,7 @@ const billabilityChart = (function main() {
         let card = createCard();
         if (!chartContainer) {
             console.log('No existing billability chard, adding one');
-            chartContainer = addBillabilityContainer(addTimePanel);
+            chartContainer = charts.addContainer(addTimePanel);
         }
 
         chrome.storage.local.get(["timeChimpUserId"])
@@ -130,12 +130,11 @@ const billabilityChart = (function main() {
                         const timesGroupedByWeek = enrichWithWeeks(times);
                         const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
                         const timesGroupedWithAverages = enrichWithAverages(timesGroupedWithMetrics);
-                        showBillabilityChart(chartContainer, timesGroupedWithAverages);
+                        charts.show(chartContainer, timesGroupedWithAverages);
                         return timesGroupedWithMetrics;
                     });
             });
     }
-    addBillabilityChart();
     return {
         add: addBillabilityChart
     }
@@ -148,3 +147,5 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     sendResponse();
     return true;
 });
+
+billabilityChart.add();
