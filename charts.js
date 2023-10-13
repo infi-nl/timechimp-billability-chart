@@ -3,7 +3,7 @@ const charts = (function () {
         const figure = document.createElement("figure");
         figure.className = "highcharts-figure";
         const cardBody = document.createElement("div");
-        cardBody.id = "highcharts-container";
+        cardBody.id = "billability-container";
         figure.appendChild(cardBody);
         element.appendChild(figure);
         return cardBody;

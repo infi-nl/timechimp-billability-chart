@@ -1,3 +1,6 @@
+/**
+ * Listens to the login cookie being set, and if so get the username from TimeChimp and puts it in local storage.
+ */
 chrome.cookies.onChanged.addListener(function(changeInfo) {
     console.log('Listening');
     if (changeInfo.cookie.name === '.AspNet.ApplicationCookie' && !changeInfo.removed) {
@@ -10,48 +13,20 @@ chrome.cookies.onChanged.addListener(function(changeInfo) {
     }
 });
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    const toTimeChimpApiDate = function(startDate) {
-        return new Date(startDate).toISOString().slice(0, 10);
-    }
-
-    if (message.contentScriptQuery == "getTimes") {
-        // Gets 5 weeks which is the current week plus four weeks in the past
-        const pastWeeks = message.pastWeeks ? message.pastWeeks : 5;
-        const msgDate = message.date ? new Date(message.date) : null;
-        const date = msgDate == null ? new Date(): new Date(msgDate.getTime() + msgDate.getTimezoneOffset() * 60000);
-        // Additional 4 weeks to calculate the average. Get 2 times 4 weeks in order to skip weeks with only leave
-        const extraWeeksForAverage = 4 * 2;
-        const weekMs = 1000 * 60 * 60 * 24 * 7;
-        const startDate = new Date().setTime(date - ((pastWeeks + extraWeeksForAverage) * weekMs));
-        const startDateString = toTimeChimpApiDate(startDate);
-        const endDateString = toTimeChimpApiDate(date);
-
-        const url = `https://app.timechimp.com/api/time/daterange/${startDateString}/${endDateString}`;
-        console.log(`Getting times from url: ${url}`);
-        fetch(url).then(response => response.json()).then()
-            .then(json => json.filter(e => e.userId === message.userId))
-            .then(json => sendResponse(json))
-            .catch(error => console.log(error));
-        return true; // Dummy return, will respond asynchronously.
-    }
-});
-
-
-
 /**
- * Listens to requests that indicate the week has changed, and the billability should be recalculated.
+ * Detects that the week has changed and the billability should be recalculated, on basis of requests to TimeChimp.
  */
-chrome.webRequest.onCompleted.addListener((request, sender, sendResponse) => {
+chrome.webRequest.onCompleted.addListener((request) => {
         const url = request.url;
         if (url.match('.*/time/week/[^/]+/.*')) {
             const lastSlashIndex = url.lastIndexOf('/')
             const date = url.substring(lastSlashIndex + 1);
-            return chrome.tabs.sendMessage(request.tabId, {args: date})
+            return chrome.tabs.sendMessage(request.tabId, {name: 'weekChanged', date: date})
                 .catch(() => console.log('Contents script not loaded yet. No issue, we can use the current date for the initial page load.'));
         }
         return;
     }, {
+        // Limit to requests that indicate a week change
         urls: ['https://app.timechimp.com/api/time/week/*']
     }
 )

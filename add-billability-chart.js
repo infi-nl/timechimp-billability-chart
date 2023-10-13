@@ -12,7 +12,9 @@ const billabilityChart = (function () {
         return parseFloat(number.toFixed(2));
     }
 
-    // Add metrics billable, non billable and total hours
+    /**
+     * Adds metrics billable, non billable and total hours.
+     */
     const addHoursMetrics = function(weekSummary) {
         weekSummary['billableHours'] = 0;
         weekSummary['nonBillableHours'] = 0;
@@ -25,7 +27,9 @@ const billabilityChart = (function () {
         });
     }
 
-    // Add for metrics billable, non billable and total hours, the percentages
+    /**
+     * Adds for metrics billable, non billable and total hours the percentages.
+      */
     const addHoursPercentages = function(weekSummary) {
         const billableHoursPercentage = (100 * weekSummary['billableHours']) / weekSummary['totalHours'];
         weekSummary['billableHoursPercentage'] = toFloatTwoDigits(billableHoursPercentage);
@@ -33,11 +37,14 @@ const billabilityChart = (function () {
         weekSummary['totalHoursPercentage'] = 100;
     }
 
+
     const getWeek = function(date)  {
         return moment(date).format('W');
     }
 
-    // Group by week, add times within a new object's "times" attribute.
+    /**
+     * Group times by week, add times within a new object's "times" attribute.
+      */
     const enrichWithWeeks = function(times) {
         return times.reduce((acc, time) => {
             const week = getWeek(time.date);
@@ -51,6 +58,9 @@ const billabilityChart = (function () {
         return !weekSummary.times.some(time => time.taskName != 'Verlof' && time.taskName != 'Feestdag');
     }
 
+    /**
+     * Adds averages for the last 5 weeks. Skips leave only weeks when calculating the averages.
+     */
     const enrichWithAverages = function(timesGroupedByWeek) {
         const weeks = Object.keys(timesGroupedByWeek).reverse();
 
@@ -104,7 +114,47 @@ const billabilityChart = (function () {
         return timesGroupedByWeek;
     }
 
-    const addBillabilityChart = function(date) {
+    const toTimeChimpApiDate = function(startDate) {
+        return new Date(startDate).toISOString().slice(0, 10);
+    }
+
+    /**
+     * Gets times from TimeChimp for the given weeks in the past, and filters out the ones for the given user id.
+     * Optionally a date can be provided, by default it will get times for the current date.
+     */
+    const getTimes = async function(pastWeeks, userId, dateString, callback) {
+        // Gets 5 weeks which is the current week plus four weeks in the past
+        const weeks = pastWeeks ?? 5;
+        const msgDate = dateString ? new Date(dateString) : null;
+        const date = msgDate == null ? new Date(): new Date(msgDate.getTime() + msgDate.getTimezoneOffset() * 60000);
+        // Additional 4 weeks to calculate the average. Get 2 times 4 weeks in order to skip weeks with only leave
+        const extraWeeksForAverage = 4 * 2;
+        const weekMs = 1000 * 60 * 60 * 24 * 7;
+        const startDate = new Date().setTime(date - ((weeks + extraWeeksForAverage) * weekMs));
+        const startDateString = toTimeChimpApiDate(startDate);
+        const endDateString = toTimeChimpApiDate(date);
+
+        const url = `https://app.timechimp.com/api/time/daterange/${startDateString}/${endDateString}`;
+        console.log(`Getting times from url: ${url}`);
+        return await fetch(url).then(response => response.json()).then()
+            .then(json => json.filter(e => e.userId === userId));
+    }
+
+    /**
+     * Generates a billability for the given times within the container provided.
+     */
+    const generateBillabilityChart = function(times, chartContainer) {
+        const timesGroupedByWeek = enrichWithWeeks(times);
+        const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
+        const timesGroupedWithAverages = enrichWithAverages(timesGroupedWithMetrics);
+        charts.show(chartContainer, timesGroupedWithAverages);
+        return timesGroupedWithMetrics;
+    }
+
+    /**
+     * Adds a billability chart on basis of times for the given date from TimeChimp.
+     */
+    const addBillabilityChart = async function(date) {
         console.log('Starting extension');
         const addTimePanel = document.querySelector('.col-md-4');
         if (!addTimePanel || !addTimePanel.querySelector('form[name="addTimeForm"]')) {
@@ -113,39 +163,32 @@ const billabilityChart = (function () {
         }
 
         console.log('Add time form found, adding charts');
-        let chartContainer = addTimePanel.querySelector('#highcharts-container');
-        let card = createCard();
+        let chartContainer = addTimePanel.querySelector('#billability-container');
         if (!chartContainer) {
             console.log('No existing billability chard, adding one');
-            chartContainer = charts.addContainer(addTimePanel);
+            const card = addTimePanel.appendChild(createCard());
+            chartContainer = charts.addContainer(card);
         }
 
-        chrome.storage.local.get(["timeChimpUserId"])
-            .then((result) => result.timeChimpUserId)
-            .then((userId) => {
-                console.log('Got user id ' + userId);
-                chrome.runtime.sendMessage(
-                    {contentScriptQuery: "getTimes", userId: userId, date: date},
-                    times => {
-                        const timesGroupedByWeek = enrichWithWeeks(times);
-                        const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
-                        const timesGroupedWithAverages = enrichWithAverages(timesGroupedWithMetrics);
-                        charts.show(chartContainer, timesGroupedWithAverages);
-                        return timesGroupedWithMetrics;
-                    });
-            });
+        const storageObject = await chrome.storage.local.get(["timeChimpUserId"]);
+        const times = await getTimes(5, storageObject.timeChimpUserId, date);
+        generateBillabilityChart(times, chartContainer);
     }
     return {
         add: addBillabilityChart
     }
 })();
 
+/**
+ * Listens to when the week has changed, and if so renews and replaces the billability chard.
+ */
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    const date = new Date(request['args']);
-    console.log('Changed weeks. Date currently selected: ' + date);
-    billabilityChart.add(date);
-    sendResponse();
-    return true;
+    if (request['name'] == 'weekChanged') {
+        const date = new Date(request['date']);
+        console.log('Changed weeks. Date currently selected: ' + date);
+        billabilityChart.add(date).then(() => sendResponse()).
+        catch((e) => "Error when adding billibility chart after changing dates: " + e);
+    }
 });
 
-billabilityChart.add();
+billabilityChart.add().catch((e) => 'Error when adding billability chart: ' + e);
