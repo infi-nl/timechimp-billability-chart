@@ -1,4 +1,4 @@
-const billibilityChart = (function main() {
+const billabilityChart = (function main() {
     function createCard() {
         const card = document.createElement("div");
         card.className = "card";
@@ -102,7 +102,7 @@ const billibilityChart = (function main() {
         return timesGroupedByWeek;
     }
 
-    function addBillibilityChart(date) {
+    function addBillabilityChart(date) {
         console.log('Starting extension');
         const addTimePanel = document.querySelector('.col-md-4');
         if (!addTimePanel || !addTimePanel.querySelector('form[name="addTimeForm"]')) {
@@ -136,16 +136,16 @@ const billibilityChart = (function main() {
                     });
             });
     }
-    addBillibilityChart();
+    addBillabilityChart();
     return {
-        add: addBillibilityChart
+        add: addBillabilityChart
     }
 })();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     const date = new Date(request['args']);
     console.log('Changed weeks. Date currently selected: ' + date);
-    billibilityChart.add(date);
+    billabilityChart.add(date);
     sendResponse();
     return true;
 });
