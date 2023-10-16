@@ -185,7 +185,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request['name'] == 'weekChanged' && dateString) {
         const date = moment.utc(dateString).toDate();
         billabilityChart.add(date).then(() => sendResponse()).
-        catch((e) => console.error("Error when adding billibility chart after changing dates: " + e));
+            catch((e) => console.error("Error when adding billibility chart after changing dates: " + e));
     }
 });
 

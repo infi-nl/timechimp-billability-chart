@@ -61,14 +61,14 @@ const charts = (function () {
                 name: 'Niet facturabel',
                 data: nonBillableHours
             },
-                {
-                    name: 'Gemiddelde facturabiliteit ',
-                    type: 'spline',
-                    data: averageBillableHours,
-                    tooltip: {
-                        valueSuffix: '% (afgelopen 5 weken)'
-                    }
-                }]
+            {
+                name: 'Gemiddelde facturabiliteit ',
+                type: 'spline',
+                data: averageBillableHours,
+                tooltip: {
+                    valueSuffix: '% (afgelopen 5 weken)'
+                }
+            }]
         });
         return;
     }
