@@ -124,8 +124,7 @@ const billabilityChart = (function () {
     const getTimes = async function(pastWeeks, userId, dateString, callback) {
         // Gets 5 weeks which is the current week plus four weeks in the past
         const weeks = pastWeeks ?? 5;
-        const msgDate = dateString ? new Date(dateString) : null;
-        const date = msgDate == null ? new Date(): new Date(msgDate.getTime() + msgDate.getTimezoneOffset() * 60000);
+        const date = dateString ? moment.utc(dateString).toDate() : new Date();
         // Additional 4 weeks to calculate the average. Get 2 times 4 weeks in order to skip weeks with only leave
         console.log(`Getting times for date ${date} in week ${getWeek(date)}`);
         const extraWeeksForAverage = 4 * 2;
