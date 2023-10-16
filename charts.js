@@ -20,8 +20,8 @@ const charts = (function () {
             nonBillableHours.push(weekSummary.nonBillableHoursPercentage);
             averageBillableHours.push(weekSummary.averageBillableHours);
         }
-        console.log('Billable hours ' + JSON.stringify(billableHours));
-        console.log('Non billable hours ' + JSON.stringify(billableHours));
+        console.debug('Billable hours ' + JSON.stringify(billableHours));
+        console.debug('Non billable hours ' + JSON.stringify(billableHours));
         Highcharts.chart(element, {
             chart: {
                 type: 'column'

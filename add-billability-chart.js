@@ -85,7 +85,7 @@ const billabilityChart = (function () {
                     weeksNumbers.push(j);
                     weeksAdded++
                 } else {
-                    console.log(`Skipping leave only week ${j}`);
+                    console.debug(`Skipping leave only week ${j}`);
                 }
             }
 
@@ -95,7 +95,7 @@ const billabilityChart = (function () {
             let averageBillableHours = billableHoursTotal ? billableHoursTotal / billableHoursLastWeeks.length: 0;
             averageBillableHours = toFloatTwoDigits(averageBillableHours);
             weekSummary['averageBillableHours'] = averageBillableHours;
-            console.log(`Adding ${leaveOnlyWeek}week ${week} with ${averageBillableHours} average billable hours. ` +
+            console.debug(`Adding ${leaveOnlyWeek}week ${week} with ${averageBillableHours} average billable hours. ` +
                 `Calculated On basis of ${billableHoursLastWeeks.length} values ` +
                 `${JSON.stringify(billableHoursLastWeeks)}, from weeks ${JSON.stringify(weeksNumbers)}`);
             enrichedWithAverages[week] = weekSummary;
@@ -133,7 +133,7 @@ const billabilityChart = (function () {
         const endDateString = toTimeChimpApiDate(date);
 
         const url = `https://app.timechimp.com/api/time/daterange/${startDateString}/${endDateString}`;
-        console.log(`Getting times from url: ${url}`);
+        console.debug(`Getting times from url: ${url}`);
         return await fetch(url).then(response => response.json()).then()
             .then(json => json.filter(e => e.userId === userId));
     }
@@ -185,8 +185,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request['name'] == 'weekChanged' && dateString) {
         const date = moment.utc(dateString).toDate();
         billabilityChart.add(date).then(() => sendResponse()).
-        catch((e) => "Error when adding billibility chart after changing dates: " + e);
+        catch((e) => console.error("Error when adding billibility chart after changing dates: " + e));
     }
 });
 
-billabilityChart.add().catch((e) => 'Error when adding billability chart: ' + e);
+billabilityChart.add().catch((e) => console.error('Error when adding billability chart: ' + e));

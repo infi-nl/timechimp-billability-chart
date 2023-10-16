@@ -7,7 +7,7 @@ chrome.cookies.onChanged.addListener(function(changeInfo) {
         const url = "https://app.timechimp.com/api/user/current";
         fetch(url).then(response => response.json())
             .then(responseJson => {
-                console.log('Logged in with user id ' + responseJson.id);
+                console.debug('Logged in with user id ' + responseJson.id);
                 chrome.storage.local.set({timeChimpUserId: responseJson.id});
             }).catch(error => console.log(error));
     }
