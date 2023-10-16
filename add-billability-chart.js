@@ -134,8 +134,9 @@ const billabilityChart = (function () {
 
         const url = `https://app.timechimp.com/api/time/daterange/${startDateString}/${endDateString}`;
         console.debug(`Getting times from url: ${url}`);
-        return await fetch(url).then(response => response.json()).then()
-            .then(json => json.filter(e => e.userId === userId));
+        const response = await fetch(url);
+        const body = await response.json();
+        return body.filter((e) => e.userId === userId);
     }
 
     /**
