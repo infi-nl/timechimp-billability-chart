@@ -55,19 +55,24 @@ const charts = (function () {
                 }
             },
             series: [{
-                name: 'Facturabel',
-                data: billableHours
-            }, {
                 name: 'Niet facturabel',
-                data: nonBillableHours
+                data: nonBillableHours,
+                color: '#e6e4e3',
             },
+            {
+                name: 'Facturabel',
+                data: billableHours,
+                color: '#f36f21',
+            }, 
             {
                 name: 'Gemiddelde facturabiliteit ',
                 type: 'spline',
                 data: averageBillableHours,
                 tooltip: {
                     valueSuffix: '% (afgelopen 5 weken)'
-                }
+                },
+                color: '#12121c',
+                lineWidth: 2,
             }]
         });
         return;
