@@ -62,32 +62,31 @@ const billabilityChart = (function () {
      * Adds averages for the last 5 weeks. Skips leave only weeks when calculating the averages.
      */
     const enrichWithAverages = function(timesGroupedByWeek) {
-        const weeks = Object.keys(timesGroupedByWeek).reverse();
+        const weeks = Object.keys(timesGroupedByWeek).reverse().map(Number);
 
         // Calculate averages for first 5 weeks, only for the latest weeks.
-        const weeksToDisplay = weeks.slice(0, weeks.length < 5 ? weeks.length : 5);
+        const weeksShown = 5;
+        const weeksToDisplay = weeks.slice(0, weeks.length < weeksShown ? weeks.length : weeksShown);
         const enrichedWithAverages = {};
 
         for (let i = 0; i < weeksToDisplay.length; i++) {
             const week = weeksToDisplay[i];
             const weekSummary = timesGroupedByWeek[week];
             const leaveOnlyWeek = isLeaveOnlyWeek(weekSummary) ? 'leave only ' : '';
-            let weekNumber = parseInt(week) - 1;
 
             let weeksAdded = 0;
             let billableHoursLastWeeks = [];
             const weeksNumbers = []; // For logging only
-            while (weeksAdded < 4 && weeks.includes(weekNumber.toString())) {
-                const weekSummary = timesGroupedByWeek[weekNumber];
+            for (let j = week - 1; weeksAdded < 4 && weeks.includes(j); j--) {
+                const weekSummary = timesGroupedByWeek[j];
                 // Only add if there are any billable hours
-                if (weeksToDisplay.includes(weekNumber.toString()) && !isLeaveOnlyWeek(weekSummary)) {
+                if (weeksToDisplay.includes(j) || !isLeaveOnlyWeek(weekSummary)) {
                     billableHoursLastWeeks.push(weekSummary.billableHoursPercentage);
-                    weeksNumbers.push(weekNumber);
-                    weeksAdded++;
+                    weeksNumbers.push(j);
+                    weeksAdded++
                 } else {
-                    console.log(`Skipping leave only week ${weekNumber}`);
+                    console.log(`Skipping leave only week ${j}`);
                 }
-                weekNumber--;
             }
 
             // Sum total billable hours
@@ -97,7 +96,7 @@ const billabilityChart = (function () {
             averageBillableHours = toFloatTwoDigits(averageBillableHours);
             weekSummary['averageBillableHours'] = averageBillableHours;
             console.log(`Adding ${leaveOnlyWeek}week ${week} with ${averageBillableHours} average billable hours. ` +
-                `Calculated On basis of of ${billableHoursLastWeeks.length} values ` +
+                `Calculated On basis of ${billableHoursLastWeeks.length} values ` +
                 `${JSON.stringify(billableHoursLastWeeks)}, from weeks ${JSON.stringify(weeksNumbers)}`);
             enrichedWithAverages[week] = weekSummary;
         }
@@ -128,6 +127,7 @@ const billabilityChart = (function () {
         const msgDate = dateString ? new Date(dateString) : null;
         const date = msgDate == null ? new Date(): new Date(msgDate.getTime() + msgDate.getTimezoneOffset() * 60000);
         // Additional 4 weeks to calculate the average. Get 2 times 4 weeks in order to skip weeks with only leave
+        console.log(`Getting times for date ${date} in week ${getWeek(date)}`);
         const extraWeeksForAverage = 4 * 2;
         const weekMs = 1000 * 60 * 60 * 24 * 7;
         const startDate = new Date().setTime(date - ((weeks + extraWeeksForAverage) * weekMs));
@@ -185,7 +185,6 @@ const billabilityChart = (function () {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request['name'] == 'weekChanged') {
         const date = new Date(request['date']);
-        console.log('Changed weeks. Date currently selected: ' + date);
         billabilityChart.add(date).then(() => sendResponse()).
         catch((e) => "Error when adding billibility chart after changing dates: " + e);
     }
