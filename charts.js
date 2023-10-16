@@ -40,7 +40,10 @@ const charts = (function () {
                 min: 0,
                 max: 100,
                 title: {
-                    text: 'Percentage'
+                    text: 'Percentage',
+                    style: {
+                        textTransform: 'none'
+                    }
                 },
             },
             tooltip: {
@@ -67,7 +70,6 @@ const charts = (function () {
                     }
                 }]
         });
-
         return;
     }
     return {
