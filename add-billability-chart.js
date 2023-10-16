@@ -121,10 +121,9 @@ const billabilityChart = (function () {
      * Gets times from TimeChimp for the given weeks in the past, and filters out the ones for the given user id.
      * Optionally a date can be provided, by default it will get times for the current date.
      */
-    const getTimes = async function(pastWeeks, userId, dateString, callback) {
+    const getTimes = async function(pastWeeks, userId, date, callback) {
         // Gets 5 weeks which is the current week plus four weeks in the past
         const weeks = pastWeeks ?? 5;
-        const date = dateString ? moment.utc(dateString).toDate() : new Date();
         // Additional 4 weeks to calculate the average. Get 2 times 4 weeks in order to skip weeks with only leave
         console.log(`Getting times for date ${date} in week ${getWeek(date)}`);
         const extraWeeksForAverage = 4 * 2;
@@ -170,7 +169,7 @@ const billabilityChart = (function () {
         }
 
         const storageObject = await chrome.storage.local.get(["timeChimpUserId"]);
-        const times = await getTimes(5, storageObject.timeChimpUserId, date);
+        const times = await getTimes(5, storageObject.timeChimpUserId, date ?? new Date());
         generateBillabilityChart(times, chartContainer);
     }
     return {
@@ -182,8 +181,9 @@ const billabilityChart = (function () {
  * Listens to when the week has changed, and if so renews and replaces the billability chard.
  */
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request['name'] == 'weekChanged') {
-        const date = new Date(request['date']);
+    const dateString = request['date'];
+    if (request['name'] == 'weekChanged' && dateString) {
+        const date = moment.utc(dateString).toDate();
         billabilityChart.add(date).then(() => sendResponse()).
         catch((e) => "Error when adding billibility chart after changing dates: " + e);
     }
