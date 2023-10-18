@@ -183,7 +183,8 @@ const billabilityChart = (function () {
  */
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     const dateString = request['date'];
-    if (request['name'] == 'weekChanged' && dateString) {
+    const event = request['name'];
+    if (dateString && (event === 'weekChanged' || event === 'userChanged')) {
         const date = moment.utc(dateString).toDate();
         billabilityChart.add(date).then(() => sendResponse()).
             catch((e) => console.error("Error when adding billibility chart after changing dates: " + e));
