@@ -1,0 +1,36 @@
+{
+  "name": "TimeChimp Billability Extension",
+  "description": "Adds a billability chart to the TimeChimp page to add Time",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "tabs",
+    "cookies",
+    "storage",
+    "webRequest"
+  ],
+  "host_permissions" : [
+    "*://app.timechimp.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://app.timechimp.com/*"],
+      "js": [
+        "node_modules/moment/min/moment.min.js",
+        "node_modules/highcharts/highcharts.js",
+        "node_modules/highcharts/modules/accessibility.js",
+        "charts.js",
+        "add-billability-chart.js"],
+      "css": ["node_modules/highcharts/css/themes/grid-light.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "timechimp.js" // Works for Google Chrome
+//     "scripts": ["timechimp.js"] // Works for Firefox. Apply by replacing the service_worker attribute above with this line.
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "timechimp.png"
+  }
+}
+
