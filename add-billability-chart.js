@@ -1,3 +1,6 @@
+// Disable console logging
+['debug', 'log','error'].map(l => (window.console[l] = function(){}));
+
 const billabilityChart = (function () {
     const createCard = function() {
         const card = document.createElement("div");
