@@ -139,6 +139,10 @@ const billabilityChart = (function () {
         return body.filter((e) => e.userId === userId);
     }
 
+    const isFireFox = function() {
+        return navigator.userAgent.toLowerCase().includes('firefox');
+    }
+
     /**
      * Generates a billability for the given times within the container provided.
      */
@@ -146,7 +150,7 @@ const billabilityChart = (function () {
         const timesGroupedByWeek = enrichWithWeeks(times);
         const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
         const timesGroupedWithAverages = enrichWithAverages(timesGroupedWithMetrics);
-        charts.show(chartContainer, timesGroupedWithAverages);
+        charts.show(chartContainer, timesGroupedWithAverages, !isFireFox());
         return timesGroupedWithMetrics;
     }
 

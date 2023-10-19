@@ -25,7 +25,8 @@
     }
   ],
   "background": {
-    "service_worker": "timechimp.js"
+    "service_worker": "timechimp.js" // Works for Google Chrome
+//     "scripts": ["timechimp.js"] // Works for Firefox. Apply by replacing the service_worker attribute above with this line.
   },
   "action": {
     "default_popup": "popup.html",

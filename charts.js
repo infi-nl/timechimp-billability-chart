@@ -9,7 +9,7 @@ const charts = (function () {
         return cardBody;
     }
 
-    const show = function(element, timesGroupedByWeek) {
+    const show = function(element, timesGroupedByWeek, showAnimation = true) {
         console.log('Creating billability chart');
         const billableHours = [];
         const nonBillableHours = [];
@@ -22,7 +22,7 @@ const charts = (function () {
         }
         console.debug('Billable hours ' + JSON.stringify(billableHours));
         console.debug('Non billable hours ' + JSON.stringify(billableHours));
-        Highcharts.chart(element, {
+        const chart = {
             chart: {
                 type: 'column'
             },
@@ -57,12 +57,12 @@ const charts = (function () {
             series: [{
                 name: 'Niet facturabel',
                 data: nonBillableHours,
-                color: '#e6e4e3',
+                color: '#e6e4e3'
             },
             {
                 name: 'Facturabel',
                 data: billableHours,
-                color: '#f36f21',
+                color: '#f36f21'
             }, 
             {
                 name: 'Gemiddelde facturabiliteit ',
@@ -72,9 +72,30 @@ const charts = (function () {
                     valueSuffix: '% (afgelopen 5 weken)'
                 },
                 color: '#12121c',
-                lineWidth: 2,
+                lineWidth: 2
             }]
-        });
+        };
+
+        // Disable all animation when configured so
+        if (!showAnimation) {
+            chart.series = chart.series.map((s) => {s['animation'] = showAnimation; return s;});
+            chart.plotOptions['series'] = {
+                events:{
+                    legendItemClick: function() { return showAnimation; }
+                },
+                enableMouseTracking: showAnimation,
+                states: {
+                    inactive: {
+                        opacity: 1
+                    },
+                    hover: {
+                        enabled: showAnimation
+                    }
+                }
+            }
+        }
+
+        Highcharts.chart(element, chart);
         return;
     }
     return {
