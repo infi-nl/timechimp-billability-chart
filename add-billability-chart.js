@@ -7,6 +7,7 @@ const billabilityChart = (function () {
         card.className = "card";
         const cardBody = document.createElement("div");
         cardBody.className = "card-body";
+        cardBody.style.padding = "10px";
         card.appendChild(cardBody);
         return card;
     }
