@@ -1,6 +1,23 @@
 {
+  "name": "timechimp-billability-extension",
+  "private": true,
+  "scripts": {
+    "start": "nodemon build.js -e ts -i build",
+    "build": "node build.js",
+    "type-check": "tsc",
+    "format": "prettier -w src/**",
+    "lint": "prettier -c src/**"
+  },
   "dependencies": {
     "highcharts": "^11.1.0",
     "moment": "^2.29.4"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.248",
+    "@types/firefox-webext-browser": "^111.0.3",
+    "esbuild": "^0.19.5",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
   }
 }
