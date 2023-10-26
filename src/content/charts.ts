@@ -4,17 +4,11 @@ import Highcharts from 'highcharts';
 // Without this, Highcharts animations won't work properly in Firefox because of strict mode.
 window.requestAnimationFrame = window.requestAnimationFrame.bind(window);
 
-export const charts = (function () {
-    function addContainer(element) {
-        const figure = document.createElement('figure');
-        figure.className = 'highcharts-figure';
-        const cardBody = document.createElement('div');
-        cardBody.id = 'billability-container';
-        figure.appendChild(cardBody);
-        element.appendChild(figure);
-        return cardBody;
-    }
+const textStyle = {
+    fontSize: '12px',
+};
 
+export const charts = (function () {
     function show(element, timesGroupedByWeek) {
         console.log('Creating billability chart');
         const billableHours = [];
@@ -28,33 +22,41 @@ export const charts = (function () {
         }
         console.debug('Billable hours ' + JSON.stringify(billableHours));
         console.debug('Non billable hours ' + JSON.stringify(billableHours));
-        const chart = {
+        const chart: Highcharts.Options = {
             chart: {
-                type: 'column',
                 className: 'highcharts-light',
             },
             title: {
                 text: 'Facturabiliteit',
-                align: 'left',
             },
             xAxis: {
                 categories: Object.keys(timesGroupedByWeek),
                 title: {
                     text: 'Week',
+                    style: textStyle,
+                },
+                labels: {
+                    style: textStyle,
                 },
             },
             yAxis: {
                 min: 0,
                 max: 100,
+                tickInterval: 25,
                 title: {
-                    text: 'Percentage',
-                    style: {
-                        textTransform: 'none',
-                    },
+                    text: undefined,
+                },
+                labels: {
+                    format: '{text}%',
+                    style: textStyle,
                 },
             },
             tooltip: {
+                shared: true,
                 valueSuffix: '%',
+                valueDecimals: 0,
+                headerFormat: 'Week {point.key}<br>',
+                style: textStyle,
             },
             plotOptions: {
                 column: {
@@ -64,16 +66,18 @@ export const charts = (function () {
             series: [
                 {
                     name: 'Niet facturabel',
+                    type: 'column',
                     data: nonBillableHours,
                     color: '#e6e4e3',
                 },
                 {
                     name: 'Facturabel',
+                    type: 'column',
                     data: billableHours,
                     color: '#f36f21',
                 },
                 {
-                    name: 'Gemiddelde facturabiliteit ',
+                    name: 'Gem. facturabiliteit',
                     type: 'spline',
                     data: averageBillableHours,
                     tooltip: {
@@ -86,13 +90,15 @@ export const charts = (function () {
             accessibility: {
                 enabled: false,
             },
+            legend: {
+                itemStyle: textStyle,
+            },
         };
 
         Highcharts.chart(element, chart);
     }
 
     return {
-        addContainer: addContainer,
-        show: show,
+        show,
     };
 })();

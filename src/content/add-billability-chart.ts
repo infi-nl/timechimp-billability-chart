@@ -4,11 +4,8 @@ import { charts } from './charts';
 const billabilityChart = (function () {
     function createCard() {
         const card = document.createElement('div');
-        card.className = 'card';
-        const cardBody = document.createElement('div');
-        cardBody.className = 'card-body';
-        cardBody.style.padding = '10px';
-        card.appendChild(cardBody);
+        card.className = 'card billability-card';
+        card.id = 'billability-card';
         return card;
     }
 
@@ -190,22 +187,14 @@ const billabilityChart = (function () {
     async function addBillabilityChart(date?: Date) {
         console.log('Starting extension');
         const addTimePanel = document.querySelector('.col-md-4');
-        if (
-            !addTimePanel ||
-            !addTimePanel.querySelector('form[name="addTimeForm"]')
-        ) {
-            console.log('Not found, returning');
+        if (!addTimePanel?.querySelector('form[name="addTimeForm"]')) {
+            console.log('Add time form not found, returning');
             return;
         }
 
-        console.log('Add time form found, adding charts');
-        let chartContainer = addTimePanel.querySelector(
-            '#billability-container',
-        );
+        let chartContainer = addTimePanel.querySelector('#billability-card');
         if (!chartContainer) {
-            console.log('No existing billability chard, adding one');
-            const card = addTimePanel.appendChild(createCard());
-            chartContainer = charts.addContainer(card);
+            chartContainer = addTimePanel.appendChild(createCard());
         }
 
         const storageObject = await chrome.storage.local.get([
