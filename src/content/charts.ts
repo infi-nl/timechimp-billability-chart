@@ -1,5 +1,9 @@
 import Highcharts from 'highcharts';
 
+// Ensure the requestAnimationFrame function is bound to the window.
+// Without this, Highcharts animations won't work properly in Firefox because of strict mode.
+window.requestAnimationFrame = window.requestAnimationFrame.bind(window);
+
 export const charts = (function () {
     function addContainer(element) {
         const figure = document.createElement('figure');
@@ -11,7 +15,7 @@ export const charts = (function () {
         return cardBody;
     }
 
-    function show(element, timesGroupedByWeek, showAnimation = true) {
+    function show(element, timesGroupedByWeek) {
         console.log('Creating billability chart');
         const billableHours = [];
         const nonBillableHours = [];
@@ -83,30 +87,6 @@ export const charts = (function () {
                 enabled: false,
             },
         };
-
-        // Disable all animation when configured so
-        if (!showAnimation) {
-            chart.series = chart.series.map((s) => {
-                s['animation'] = showAnimation;
-                return s;
-            });
-            chart.plotOptions['series'] = {
-                events: {
-                    legendItemClick: function () {
-                        return showAnimation;
-                    },
-                },
-                enableMouseTracking: showAnimation,
-                states: {
-                    inactive: {
-                        opacity: 1,
-                    },
-                    hover: {
-                        enabled: showAnimation,
-                    },
-                },
-            };
-        }
 
         Highcharts.chart(element, chart);
     }
