@@ -41,7 +41,6 @@ TypeCheck:
   stage: Build
   script:
     - npm run type-check
-  allow_failure: true # TODO: Remove this when all types are fixed.
 
 Build:
   stage: Build

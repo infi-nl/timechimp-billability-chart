@@ -1,5 +1,20 @@
 import moment from 'moment';
-import { charts } from './charts';
+import { createChart } from './charts';
+import { Time, TimeChimpApi } from '../TimeChimpApi';
+
+const api = new TimeChimpApi();
+
+export type TimeSummaryByWeek = Record<string, WeekSummary>;
+
+interface WeekSummary {
+    times: Time[];
+    billableHours: number;
+    nonBillableHours: number;
+    totalHours: number;
+    billableHoursPercentage: number;
+    nonBillableHoursPercentage: number;
+    averageBillableHours: number;
+}
 
 const billabilityChart = (function () {
     function createCard() {
@@ -9,51 +24,41 @@ const billabilityChart = (function () {
         return card;
     }
 
-    function toFloatTwoDigits(number: number) {
-        return parseFloat(number.toFixed(2));
-    }
-
     /**
-     * Adds metrics billable, non billable and total hours.
+     * Adds metrics billable, non-billable and total hours.
      */
-    function addHoursMetrics(weekSummary) {
-        weekSummary['billableHours'] = 0;
-        weekSummary['nonBillableHours'] = 0;
-        weekSummary['totalHours'] = 0;
+    function addHoursMetrics(weekSummary: WeekSummary) {
+        weekSummary.billableHours = 0;
+        weekSummary.nonBillableHours = 0;
+        weekSummary.totalHours = 0;
         weekSummary.times.forEach((time) => {
             const hoursType = time.billable
                 ? 'billableHours'
                 : 'nonBillableHours';
             weekSummary[hoursType] += time.hours;
-            weekSummary['totalHours'] += time.hours;
-            return;
+            weekSummary.totalHours += time.hours;
         });
     }
 
     /**
-     * Adds for metrics billable, non billable and total hours the percentages.
+     * Adds for metrics billable, non-billable and total hours the percentages.
      */
-    function addHoursPercentages(weekSummary) {
-        const billableHoursPercentage =
-            (100 * weekSummary['billableHours']) / weekSummary['totalHours'];
-        weekSummary['billableHoursPercentage'] = toFloatTwoDigits(
-            billableHoursPercentage,
-        );
-        weekSummary['nonBillableHoursPercentage'] = toFloatTwoDigits(
-            100 - weekSummary['billableHoursPercentage'],
-        );
-        weekSummary['totalHoursPercentage'] = 100;
+    function addHoursPercentages(weekSummary: WeekSummary) {
+        weekSummary.billableHoursPercentage =
+            (100 * weekSummary.billableHours) / weekSummary.totalHours;
+        weekSummary.nonBillableHoursPercentage =
+            100 - weekSummary.billableHoursPercentage;
     }
 
-    function getWeek(date) {
+    function getWeek(date: string | Date) {
         return moment(date).format('W');
     }
 
     /**
      * Group times by week, add times within a new object's "times" attribute.
      */
-    function enrichWithWeeks(times) {
-        return times.reduce((acc, time) => {
+    function enrichWithWeeks(times: Time[]) {
+        return times.reduce<TimeSummaryByWeek>((acc, time) => {
             const week = getWeek(time.date);
             acc[week] = acc[week] ?? { times: [] };
             acc[week]['times'].push(time);
@@ -61,7 +66,7 @@ const billabilityChart = (function () {
         }, {});
     }
 
-    function isLeaveOnlyWeek(weekSummary) {
+    function isLeaveOnlyWeek(weekSummary: WeekSummary) {
         return !weekSummary.times.some(
             (time) => time.taskName != 'Verlof' && time.taskName != 'Feestdag',
         );
@@ -70,7 +75,7 @@ const billabilityChart = (function () {
     /**
      * Adds averages for the last 5 weeks. Skips leave only weeks when calculating the averages.
      */
-    function enrichWithAverages(timesGroupedByWeek) {
+    function enrichWithAverages(timesGroupedByWeek: TimeSummaryByWeek) {
         const weeks = Object.keys(timesGroupedByWeek).reverse().map(Number);
 
         // Calculate averages for first 5 weeks, only for the latest weeks.
@@ -79,7 +84,7 @@ const billabilityChart = (function () {
             0,
             weeks.length < weeksShown ? weeks.length : weeksShown,
         );
-        const enrichedWithAverages = {};
+        const enrichedWithAverages: TimeSummaryByWeek = {};
 
         for (const week of weeksToDisplay) {
             const weekSummary = timesGroupedByWeek[week];
@@ -116,8 +121,7 @@ const billabilityChart = (function () {
             let averageBillableHours = billableHoursTotal
                 ? billableHoursTotal / billableHoursLastWeeks.length
                 : 0;
-            averageBillableHours = toFloatTwoDigits(averageBillableHours);
-            weekSummary['averageBillableHours'] = averageBillableHours;
+            weekSummary.averageBillableHours = averageBillableHours;
             console.debug(
                 `Adding ${leaveOnlyWeek}week ${week} with ${averageBillableHours} average billable hours. ` +
                     `Calculated On basis of ${billableHoursLastWeeks.length} values ` +
@@ -130,18 +134,16 @@ const billabilityChart = (function () {
         return enrichedWithAverages;
     }
 
-    // Add metrics billable, non billable and total hours, and associated percentages.
-    function enrichWithMetrics(timesGroupedByWeek) {
-        // Add metrics billable, non billable and total hours, and associated percentages.
+    // Add metrics billable, non-billable and total hours, and associated percentages.
+    function enrichWithMetrics(timesGroupedByWeek: TimeSummaryByWeek) {
         for (const weekSummary of Object.values(timesGroupedByWeek)) {
             addHoursMetrics(weekSummary);
             addHoursPercentages(weekSummary);
         }
-        return timesGroupedByWeek;
     }
 
-    function toTimeChimpApiDate(startDate: number) {
-        return new Date(startDate).toISOString().slice(0, 10);
+    function toIsoDate(date: number | Date) {
+        return new Date(date).toISOString().slice(0, 10);
     }
 
     /**
@@ -156,36 +158,35 @@ const billabilityChart = (function () {
         const extraWeeksForAverage = 4 * 2;
         const weekMs = 1000 * 60 * 60 * 24 * 7;
         const startDate = new Date().setTime(
-            date - (weeks + extraWeeksForAverage) * weekMs,
+            date.getTime() - (weeks + extraWeeksForAverage) * weekMs,
         );
-        const startDateString = toTimeChimpApiDate(startDate);
-        const endDateString = toTimeChimpApiDate(date);
+        const startDateString = toIsoDate(startDate);
+        const endDateString = toIsoDate(date);
 
-        const url = `https://app.timechimp.com/api/time/daterange/${startDateString}/${endDateString}`;
-        console.debug(`Getting times from url: ${url}`);
-        const response = await fetch(url);
-        const body = await response.json();
-        return body.filter((e) => e.userId === userId);
+        const times = await api.getTimesDateRange(
+            startDateString,
+            endDateString,
+        );
+        return times.filter((e) => e.userId === userId);
     }
 
     /**
      * Generates a billability for the given times within the container provided.
      */
-    function generateBillabilityChart(times, chartContainer) {
+    function generateBillabilityChart(
+        times: Time[],
+        chartContainer: HTMLElement,
+    ) {
         const timesGroupedByWeek = enrichWithWeeks(times);
-        const timesGroupedWithMetrics = enrichWithMetrics(timesGroupedByWeek);
-        const timesGroupedWithAverages = enrichWithAverages(
-            timesGroupedWithMetrics,
-        );
-        charts.show(chartContainer, timesGroupedWithAverages);
-        return timesGroupedWithMetrics;
+        enrichWithMetrics(timesGroupedByWeek);
+        const timesGroupedWithAverages = enrichWithAverages(timesGroupedByWeek);
+        createChart(chartContainer, timesGroupedWithAverages);
     }
 
     /**
      * Adds a billability chart on basis of times for the given date from TimeChimp.
      */
     async function addBillabilityChart(date?: Date) {
-        console.log('Starting extension');
         const addTimePanel = document.querySelector('.col-md-4');
         if (!addTimePanel?.querySelector('form[name="addTimeForm"]')) {
             console.log('Add time form not found, returning');
@@ -205,7 +206,7 @@ const billabilityChart = (function () {
             storageObject.timeChimpUserId,
             date ?? new Date(),
         );
-        generateBillabilityChart(times, chartContainer);
+        generateBillabilityChart(times, chartContainer as HTMLElement);
     }
 
     return {
@@ -216,7 +217,7 @@ const billabilityChart = (function () {
 /**
  * Listens to when the week has changed, and if so renews and replaces the billability chard.
  */
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (request, _, sendResponse) {
     const dateString = request['date'];
     const event = request['name'];
     if (dateString && (event === 'weekChanged' || event === 'userChanged')) {
@@ -226,7 +227,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             .then(() => sendResponse())
             .catch((e) =>
                 console.error(
-                    'Error when adding billibility chart after changing dates: ' +
+                    'Error when adding billability chart after changing dates: ' +
                         e,
                 ),
             );

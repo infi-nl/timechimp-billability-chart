@@ -1,20 +1,19 @@
+import { TimeChimpApi } from '../TimeChimpApi';
+
+const api = new TimeChimpApi();
+
 /**
  * Listens to the login cookie being set, and if so get the username from TimeChimp and puts it in local storage.
  */
-chrome.cookies.onChanged.addListener(function (changeInfo) {
-    console.log('Listening');
+chrome.cookies.onChanged.addListener((changeInfo) => {
     if (
         changeInfo.cookie.name === '.AspNet.ApplicationCookie' &&
         !changeInfo.removed
     ) {
-        const url = 'https://app.timechimp.com/api/user/current';
-        fetch(url)
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.debug('Logged in with user id ' + responseJson.id);
-                chrome.storage.local.set({ timeChimpUserId: responseJson.id });
-            })
-            .catch((error) => console.log(error));
+        api.getCurrentUser().then((user) => {
+            console.debug('Logged in with user id ' + user.id);
+            chrome.storage.local.set({ timeChimpUserId: user.id });
+        });
     }
 });
 
@@ -24,16 +23,14 @@ chrome.cookies.onChanged.addListener(function (changeInfo) {
 chrome.webRequest.onCompleted.addListener(
     async (request) => {
         // Gets the id based on the userName
-        async function getUserId(userName) {
-            const users = await fetch(
-                'https://app.timechimp.com/api/user',
-            ).then((response) => response.json());
-            return users.find((u) => u.userName === userName).id;
+        async function getUserId(userName: string) {
+            const users = await api.getUsers();
+            return users.find((u) => u.userName === userName)!.id;
         }
 
-        // Get the date and the user email from the request to TimeCimp
+        // Get the date and the user email from the request to TimeChimp
         const matches = request.url.match('.*/time/week/([^/]+)/(.*)');
-        if (matches.length == 3) {
+        if (matches?.length == 3) {
             let event = 'weekChanged';
             const userIdNew = await getUserId(decodeURIComponent(matches[1]));
             const userIdFromStorage = await chrome.storage.local.get([
@@ -54,7 +51,6 @@ chrome.webRequest.onCompleted.addListener(
                     ),
                 );
         }
-        return;
     },
     {
         // Limit to requests that indicate a week change
