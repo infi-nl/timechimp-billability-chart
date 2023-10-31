@@ -4,6 +4,13 @@ Shows your billability of the last 5 weeks, on basis of the hours within TimeChi
 
 Each week includes the average billability of the 4 weeks before. Whenever a week only has days booked on leave or public holidays, a week earlier is used for the average calculation.
 
+## Usage
+
+The simplest way to use the extension is via the extension marketplace for your browser.
+
+- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart)
+- [Chrome and Edge](https://chrome.google.com/webstore/detail/timechimp-billability-cha/eleodjmnfjlgiidglnlfclhffhgkgpdp)
+
 ## Quick Start
 
 ```shell
@@ -22,36 +29,31 @@ npm run format
 
 To load the extension in your browser, check the docs for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
 
-## Running this extension
+## Developing the extension
 
-1. Clone the main branch of this repository.
-2. Install the dependencies.
+First, you need to clone the repository, and install all dependencies:
 
 ```shell
+git clone ...
+
 npm install
 ```
 
-3. Build the extension.
+To build the extension in watch mode, you can run:
 
 ```shell
-npm run build
+npm start
 ```
 
-4. Currently Chrome and Firefox are supported. Only for Firefox change the manifest.json file as follows:
+This will generate various build folders for Chrome and Firefox.
+These are called `build_chrome` and `build_firefox` respectively.
+You can now load this as an unpacked extension in your browser.
+For more info on how to do that, check the instructions for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
 
-```json
-  "background": {
-      // "service_worker": "timechimp.js"
-     "scripts": ["timechimp.js"]
-  },
-```
- 
-5. Load this directory as an unpacked extension in [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
-6. Click the extension icon right next to the address bar and check whether it displays: _Billability charts are now added to the TimeChimp hours page_
+After making changes, be sure to click the "reload" button to let your browser reload the extension code.
+Without this, you won't see your changes in the browser.
 
-![Extension icon](extension-icon.png)
+You can now open [TimeChimp](https://app.timechimp.com/#/registration/time/day),
+and you should see the billability chart right below the time entry form.
 
-7. Open the TimeChimp [hours page](https://app.timechimp.com/#/registration/time/day). 
-8. Billability charts should now be represented just beneath the section where you can add hours:
-
-![Example](example.png)
+![Screenshot of the TimeChimp page with the billability chart](screenshot.png)

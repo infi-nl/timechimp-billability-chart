@@ -37,7 +37,7 @@ chrome.webRequest.onCompleted.addListener(
                 'timeChimpUserId',
             ]);
             if (userIdFromStorage.timeChimpUserId != userIdNew) {
-                console.log('Switching to user ' + userIdNew);
+                console.debug('Switching to user ' + userIdNew);
                 event = 'userChanged';
                 await chrome.storage.local.set({ timeChimpUserId: userIdNew });
             }
@@ -46,7 +46,7 @@ chrome.webRequest.onCompleted.addListener(
             return chrome.tabs
                 .sendMessage(request.tabId, { name: event, date: date })
                 .catch(() =>
-                    console.log(
+                    console.debug(
                         'Contents script not loaded yet. No issue, we can use the current date for the initial page load.',
                     ),
                 );
