@@ -22,21 +22,33 @@ chrome.cookies.onChanged.addListener((changeInfo) => {
  */
 chrome.webRequest.onCompleted.addListener(
     async (request) => {
-        // Gets the id based on the userName
-        async function getUserId(userName: string) {
-            const users = await api.getUsers();
-            return users.find((u) => u.userName === userName)!.id;
+        /**
+         * Gets the user id based on the username.
+         * Note that this is an admin-only endpoint,
+         * so this will return undefined if called by an unauthorized user.
+         */
+        async function tryGetUserId(userName: string) {
+            try {
+                const users = await api.getUsers();
+                return users.find((u) => u.userName === userName)!.id;
+            } catch (e) {
+                return undefined;
+            }
         }
 
         // Get the date and the user email from the request to TimeChimp
         const matches = request.url.match('.*/time/week/([^/]+)/(.*)');
         if (matches?.length == 3) {
             let event = 'weekChanged';
-            const userIdNew = await getUserId(decodeURIComponent(matches[1]));
+
+            const userIdNew = await tryGetUserId(
+                decodeURIComponent(matches[1]),
+            );
             const userIdFromStorage = await chrome.storage.local.get([
                 'timeChimpUserId',
             ]);
-            if (userIdFromStorage.timeChimpUserId != userIdNew) {
+
+            if (userIdNew && userIdFromStorage.timeChimpUserId != userIdNew) {
                 console.debug('Switching to user ' + userIdNew);
                 event = 'userChanged';
                 await chrome.storage.local.set({ timeChimpUserId: userIdNew });
