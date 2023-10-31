@@ -7,3 +7,5 @@ node_modules/
 
 # Build artifacts
 build/
+build_*/
+artifacts/

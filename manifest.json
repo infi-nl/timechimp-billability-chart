@@ -1,10 +1,9 @@
 {
-  "name": "TimeChimp Billability Extension",
-  "description": "Adds a billability chart to the TimeChimp page to add Time",
-  "version": "1.0",
+  "name": "TimeChimp Billability Chart",
+  "description": "Adds a billability chart on the TimeChimp hours page.",
+  "version": "1.0.0",
   "manifest_version": 3,
   "permissions": [
-    "tabs",
     "cookies",
     "storage",
     "webRequest"
@@ -26,13 +25,16 @@
     }
   ],
   "background": {
-    // Works for Google Chrome
     "service_worker": "build/background/timechimp.js"
-    // "scripts": ["build/background/timechimp.js"] // Works for Firefox. Apply by replacing the service_worker attribute above with this line.
   },
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": "timechimp.png"
+    "default_icon": "icon.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "timechimp-billability-chart@infi.nl",
+      "strict_min_version": "109.0"
+    }
   }
 }
 
