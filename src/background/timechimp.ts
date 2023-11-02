@@ -1,4 +1,5 @@
 import { TimeChimpApi } from '../TimeChimpApi';
+import { Message } from '../message';
 
 const api = new TimeChimpApi();
 
@@ -38,7 +39,7 @@ chrome.webRequest.onCompleted.addListener(
 
         // Get the date and the user email from the request to TimeChimp
         const matches = request.url.match('.*/time/week/([^/]+)/(.*)');
-        if (matches?.length == 3) {
+        if (matches?.length === 3) {
             let event = 'weekChanged';
 
             const userIdNew = await tryGetUserId(
@@ -55,13 +56,7 @@ chrome.webRequest.onCompleted.addListener(
             }
 
             const date = matches[2];
-            return chrome.tabs
-                .sendMessage(request.tabId, { name: event, date: date })
-                .catch(() =>
-                    console.debug(
-                        'Contents script not loaded yet. No issue, we can use the current date for the initial page load.',
-                    ),
-                );
+            await sendMessage(request.tabId, { type: event, date: date });
         }
     },
     {
@@ -69,3 +64,27 @@ chrome.webRequest.onCompleted.addListener(
         urls: ['https://app.timechimp.com/api/time/week/*'],
     },
 );
+
+/**
+ * Listen for API calls related to time entries.
+ */
+chrome.webRequest.onCompleted.addListener(
+    (request) => sendMessage(request.tabId, { type: 'refresh' }),
+    {
+        urls: [
+            'https://app.timechimp.com/api/time',
+            'https://app.timechimp.com/api/time/put',
+            'https://app.timechimp.com/api/time/delete?*',
+        ],
+    },
+);
+
+async function sendMessage(tabId: number, msg: Message) {
+    await chrome.tabs
+        .sendMessage(tabId, msg)
+        .catch(() =>
+            console.debug(
+                'Failed to send message to tab, content script is likely not loaded yet.',
+            ),
+        );
+}

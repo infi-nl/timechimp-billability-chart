@@ -1,6 +1,7 @@
-import { createChart } from './createChart';
+import { createOrUpdateChart } from './chart';
 import { Time, TimeChimpApi } from '../TimeChimpApi';
-import { getWeek, toIsoDate } from '../date';
+import { toIsoDate } from '../date';
+import { endOfWeek, getWeek, startOfWeek, subWeeks } from 'date-fns';
 
 const api = new TimeChimpApi();
 
@@ -19,7 +20,13 @@ interface WeekSummary {
 /**
  * Adds a billability chart on basis of times for the given date from TimeChimp.
  */
-export async function addBillabilityChart(date?: Date) {
+export async function addBillabilityChart(date: Date) {
+    await doAddBillabilityChart(date).catch((e) =>
+        console.error(`Error when adding billability chart: ${e}`),
+    );
+}
+
+async function doAddBillabilityChart(date: Date) {
     const addTimePanel = document.querySelector('.col-md-4');
     if (!addTimePanel?.querySelector('form[name="addTimeForm"]')) {
         console.debug('Add time form not found, returning');
@@ -32,11 +39,7 @@ export async function addBillabilityChart(date?: Date) {
     }
 
     const storageObject = await chrome.storage.local.get(['timeChimpUserId']);
-    const times = await getTimes(
-        5,
-        storageObject.timeChimpUserId,
-        date ?? new Date(),
-    );
+    const times = await getTimes(storageObject.timeChimpUserId, date);
     generateBillabilityChart(times, chartContainer as HTMLElement);
 }
 
@@ -74,11 +77,11 @@ function addHoursPercentages(weekSummary: WeekSummary) {
 /**
  * Group times by week, add times within a new object's "times" attribute.
  */
-function enrichWithWeeks(times: Time[]) {
+function groupTimesByWeek(times: Time[]) {
     return times.reduce<TimeSummaryByWeek>((acc, time) => {
-        const week = getWeek(time.date);
+        const week = getWeek(new Date(time.date));
         acc[week] = acc[week] ?? { times: [] };
-        acc[week]['times'].push(time);
+        acc[week].times.push(time);
         return acc;
     }, {});
 }
@@ -158,20 +161,17 @@ function enrichWithMetrics(timesGroupedByWeek: TimeSummaryByWeek) {
  * Gets times from TimeChimp for the given weeks in the past, and filters out the ones for the given user id.
  * Optionally a date can be provided, by default it will get times for the current date.
  */
-async function getTimes(pastWeeks: number, userId: number, date: Date) {
-    // Gets 5 weeks which is the current week plus four weeks in the past
-    const weeks = pastWeeks ?? 5;
-    // Additional 4 weeks to calculate the average. Get 2 times 4 weeks in order to skip weeks with only leave
-    console.debug(`Getting times for date ${date} in week ${getWeek(date)}`);
-    const extraWeeksForAverage = 4 * 2;
-    const weekMs = 1000 * 60 * 60 * 24 * 7;
-    const startDate = new Date().setTime(
-        date.getTime() - (weeks + extraWeeksForAverage) * weekMs,
+async function getTimes(userId: number, date: Date) {
+    console.debug(
+        `Getting times for ${toIsoDate(date)} in week ${getWeek(date)}`,
     );
-    const startDateString = toIsoDate(startDate);
-    const endDateString = toIsoDate(date);
 
-    const times = await api.getTimesDateRange(startDateString, endDateString);
+    // Get 10 past weeks in order to skip weeks with only leave.
+    const startDate = toIsoDate(subWeeks(startOfWeek(date), 10));
+    const endDate = toIsoDate(endOfWeek(date));
+
+    console.debug(`Getting all times from ${startDate} to ${endDate}`);
+    const times = await api.getTimesDateRange(startDate, endDate);
     return times.filter((e) => e.userId === userId);
 }
 
@@ -179,8 +179,8 @@ async function getTimes(pastWeeks: number, userId: number, date: Date) {
  * Generates a billability for the given times within the container provided.
  */
 function generateBillabilityChart(times: Time[], chartContainer: HTMLElement) {
-    const timesGroupedByWeek = enrichWithWeeks(times);
+    const timesGroupedByWeek = groupTimesByWeek(times);
     enrichWithMetrics(timesGroupedByWeek);
     const timesGroupedWithAverages = enrichWithAverages(timesGroupedByWeek);
-    createChart(chartContainer, timesGroupedWithAverages);
+    createOrUpdateChart(chartContainer, timesGroupedWithAverages);
 }

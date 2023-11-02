@@ -1,25 +1,30 @@
 import 'highcharts/css/highcharts.css';
 import './style.css';
 import { addBillabilityChart } from './add-billability-chart';
+import { Message } from '../message';
+import setDefaultOptions from 'date-fns/setDefaultOptions';
 
-/**
- * Listens to when the week has changed, and if so updates the billability chart.
- */
-chrome.runtime.onMessage.addListener(function (request, _, sendResponse) {
-    const dateString = request['date'];
-    const event = request['name'];
-    if (dateString && (event === 'weekChanged' || event === 'userChanged')) {
-        addBillabilityChart(new Date(dateString))
-            .then(() => sendResponse())
-            .catch((e) =>
-                console.error(
-                    'Error when adding billability chart after changing dates: ' +
-                        e,
-                ),
-            );
-    }
+let currentDate = new Date();
+
+// Default date-fns options.
+setDefaultOptions({
+    // Weeks start on Monday.
+    weekStartsOn: 1,
+    // Week number 1 should contain the 4th on January.
+    firstWeekContainsDate: 4,
 });
 
-addBillabilityChart().catch((e) =>
-    console.error('Error when adding billability chart: ' + e),
-);
+/**
+ * Listens to incoming messages, and update the billability chart.
+ */
+chrome.runtime.onMessage.addListener(async (msg: Message) => {
+    console.debug(`Received message: ${JSON.stringify(msg)}`);
+
+    if (msg.date) {
+        currentDate = new Date(msg.date);
+    }
+
+    await addBillabilityChart(currentDate);
+});
+
+addBillabilityChart(currentDate);

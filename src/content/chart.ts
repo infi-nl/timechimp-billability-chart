@@ -9,11 +9,12 @@ const textStyle = {
     fontSize: '12px',
 };
 
-export function createChart(
+let chart: Highcharts.Chart;
+
+export function createOrUpdateChart(
     element: HTMLElement,
     timesGroupedByWeek: TimeSummaryByWeek,
 ) {
-    console.debug('Creating billability chart');
     const billableHours: number[] = [];
     const nonBillableHours: number[] = [];
     const averageBillableHours: number[] = [];
@@ -98,5 +99,11 @@ export function createChart(
         },
     };
 
-    Highcharts.chart(element, options);
+    if (chart) {
+        console.debug('Updating existing chart');
+        chart.update(options);
+    } else {
+        console.debug('Creating new chart');
+        chart = Highcharts.chart(element, options);
+    }
 }
