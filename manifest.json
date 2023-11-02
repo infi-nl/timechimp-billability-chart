@@ -1,7 +1,7 @@
 {
   "name": "TimeChimp Billability Chart",
   "description": "Adds a billability chart on the TimeChimp hours page.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "manifest_version": 3,
   "permissions": [
     "cookies",

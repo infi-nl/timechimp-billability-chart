@@ -1,5 +1,6 @@
 import Highcharts from 'highcharts';
 import { TimeSummaryByWeek } from './add-billability-chart';
+import { hoursToClockNotation } from '../date';
 
 // Ensure the requestAnimationFrame function is bound to the window.
 // Without this, Highcharts animations won't work properly in Firefox because of strict mode.
@@ -18,12 +19,13 @@ export function createOrUpdateChart(
     const billableHours: number[] = [];
     const nonBillableHours: number[] = [];
     const averageBillableHours: number[] = [];
+    const totalHours: number[] = [];
 
-    for (const week of Object.keys(timesGroupedByWeek)) {
-        const weekSummary = timesGroupedByWeek[week];
+    for (const weekSummary of Object.values(timesGroupedByWeek)) {
         billableHours.push(weekSummary.billableHoursPercentage);
         nonBillableHours.push(weekSummary.nonBillableHoursPercentage);
         averageBillableHours.push(weekSummary.averageBillableHours);
+        totalHours.push(weekSummary.totalHours);
     }
 
     const options: Highcharts.Options = {
@@ -35,12 +37,15 @@ export function createOrUpdateChart(
         },
         xAxis: {
             categories: Object.keys(timesGroupedByWeek),
-            title: {
-                text: 'Week',
-                style: textStyle,
-            },
             labels: {
                 style: textStyle,
+                formatter: (label) => {
+                    const weekNum = label.value;
+                    const hours = hoursToClockNotation(
+                        timesGroupedByWeek[weekNum].totalHours,
+                    );
+                    return `Week ${weekNum}<br><b>${hours}</b>`;
+                },
             },
         },
         yAxis: {
@@ -57,8 +62,6 @@ export function createOrUpdateChart(
         },
         tooltip: {
             shared: true,
-            valueSuffix: '%',
-            valueDecimals: 0,
             headerFormat: 'Week {point.key}<br>',
             style: textStyle,
         },
@@ -73,22 +76,46 @@ export function createOrUpdateChart(
                 type: 'column',
                 data: nonBillableHours,
                 color: '#e6e4e3',
+                tooltip: {
+                    valueSuffix: '%',
+                    valueDecimals: 0,
+                },
             },
             {
                 name: 'Facturabel',
                 type: 'column',
                 data: billableHours,
                 color: '#f36f21',
+                tooltip: {
+                    valueSuffix: '%',
+                    valueDecimals: 0,
+                },
             },
             {
                 name: 'Gem. facturabiliteit',
                 type: 'spline',
                 data: averageBillableHours,
-                tooltip: {
-                    valueSuffix: '% (afgelopen 5 weken)',
-                },
                 color: '#12121c',
                 lineWidth: 2,
+                tooltip: {
+                    valueSuffix: '% (afgelopen 5 weken)',
+                    valueDecimals: 0,
+                },
+            },
+            {
+                name: 'Uren gewerkt',
+                type: 'spline',
+                data: totalHours,
+                color: '#6d6d77',
+                showInLegend: false,
+                opacity: 0,
+                tooltip: {
+                    pointFormatter: function () {
+                        const hours = hoursToClockNotation(this.y ?? 0);
+                        const format = `<span style='color:{point.color}'>●</span> {series.name}: <b>${hours}</b><br/>`;
+                        return this.tooltipFormatter.call(this, format);
+                    },
+                },
             },
         ],
         accessibility: {
