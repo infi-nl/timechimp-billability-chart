@@ -13,13 +13,33 @@ const zipDir = require('zip-dir');
         sourcemap: true,
     });
 
+    // Create the browser builds.
     await buildChrome('build_chrome');
     await buildFirefox('build_firefox');
 
+    // Create zip artifacts from the browser builds.
     await fs.mkdir('artifacts', { recursive: true });
     zipDir('build_chrome', { saveTo: path.resolve('artifacts', 'chrome.zip') });
     zipDir('build_firefox', {
         saveTo: path.resolve('artifacts', 'firefox.zip'),
+    });
+
+    // Create a zip archive with the sources.
+    const projectPath = path.resolve('.');
+    zipDir('.', {
+        saveTo: path.resolve('artifacts', 'sources.zip'),
+        filter: (p, stat) => {
+            const relPath = path.relative(projectPath, p);
+
+            // Exclude build dirs.
+            if (stat.isDirectory() && relPath.startsWith('build')) {
+                return false;
+            }
+
+            return !['.git', '.idea', 'artifacts', 'node_modules'].includes(
+                relPath,
+            );
+        },
     });
 })().catch((e) => {
     console.error(e);
@@ -34,7 +54,10 @@ async function buildChrome(dir) {
     const manifestJson = JSON.parse(
         (await fs.readFile('manifest.json')).toString(),
     );
+
+    // Chrome doesn't use `browser_specific_settings`, so remove it.
     manifestJson.browser_specific_settings = undefined;
+
     await fs.writeFile(
         path.join(dir, 'manifest.json'),
         JSON.stringify(manifestJson, null, 2),
@@ -46,13 +69,15 @@ async function buildFirefox(dir) {
     await copyDir('build', path.resolve(dir, 'build'));
     await fs.copyFile('icon.png', path.join(dir, 'icon.png'));
 
-    // Firefox doesn't use `background.service_worker`,
-    // but `background.script` to define the background worker.
     const manifestJson = JSON.parse(
         (await fs.readFile('manifest.json')).toString(),
     );
+
+    // Firefox doesn't use `background.service_worker`,
+    // but `background.script` to define the background worker.
     manifestJson.background.scripts = [manifestJson.background.service_worker];
     manifestJson.background.service_worker = undefined;
+
     await fs.writeFile(
         path.join(dir, 'manifest.json'),
         JSON.stringify(manifestJson, null, 2),
