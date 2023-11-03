@@ -17,13 +17,18 @@ const GET_TIMES_WEEKS = SHOW_WEEKS + ROLLING_AVG_WEEKS * 2;
 /**
  * Adds a billability chart on basis of times for the given date from TimeChimp.
  */
-export async function addBillabilityChart(date: Date) {
-    await doAddBillabilityChart(date).catch((e) =>
+export async function addBillabilityChart(date: Date, userId?: number) {
+    if (!userId) {
+        console.warn('Cannot add billability chart without user id.');
+        return;
+    }
+
+    await doAddBillabilityChart(date, userId).catch((e) =>
         console.error(`Error when adding billability chart: ${e}`),
     );
 }
 
-async function doAddBillabilityChart(date: Date) {
+async function doAddBillabilityChart(date: Date, userId: number) {
     const addTimePanel = document.querySelector('.col-md-4');
     if (!addTimePanel?.querySelector('form[name="addTimeForm"]')) {
         console.debug('Add time form not found, returning');
@@ -35,12 +40,7 @@ async function doAddBillabilityChart(date: Date) {
         chartContainer = addTimePanel.appendChild(createBillabilityCard());
     }
 
-    const storageObject = await chrome.storage.local.get(['timeChimpUserId']);
-    const times = await getTimes(
-        storageObject.timeChimpUserId,
-        date,
-        GET_TIMES_WEEKS,
-    );
+    const times = await getTimes(userId, date, GET_TIMES_WEEKS);
 
     const stats = calculateTimeStats(times, SHOW_WEEKS, ROLLING_AVG_WEEKS);
     createOrUpdateChart(chartContainer as HTMLElement, stats);
@@ -59,7 +59,9 @@ function createBillabilityCard() {
  */
 async function getTimes(userId: number, date: Date, weeks: number) {
     console.debug(
-        `Getting times for ${toIsoDate(date)} in week ${getWeek(date)}`,
+        `Getting times for user ${userId}, ${toIsoDate(date)} in week ${getWeek(
+            date,
+        )}`,
     );
 
     const startDate = toIsoDate(subWeeks(startOfWeek(date), weeks));

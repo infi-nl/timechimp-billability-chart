@@ -100,6 +100,9 @@ function sum(n: number[]) {
 
 function isLeaveOnly(times: Time[]) {
     return times.every(
-        (time) => time.taskName === 'Verlof' || time.taskName === 'Feestdag',
+        (time) =>
+            time.taskName === 'Verlof' ||
+            time.taskName === 'Feestdag' ||
+            time.taskName === 'Bijzonder verlof',
     );
 }

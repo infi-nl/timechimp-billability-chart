@@ -4,8 +4,6 @@
   "version": "1.2.0",
   "manifest_version": 3,
   "permissions": [
-    "cookies",
-    "storage",
     "webRequest"
   ],
   "host_permissions": [

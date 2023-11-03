@@ -22,6 +22,21 @@ export class TimeChimpApi {
     public getTimesDateRange(start: string, end: string): Promise<Time[]> {
         return this.doFetch(`/api/time/daterange/${start}/${end}`);
     }
+
+    /**
+     * Get the user id based on the username.
+     * Note that this is an admin-only endpoint,
+     * so this will throw an error if called by an unauthorized user.
+     */
+    public async getUserByUserName(userName: string): Promise<User> {
+        const users = await this.getUsers();
+        const user = users.find((u) => u.userName === userName);
+
+        if (!user) {
+            throw new Error(`No user found with userName: ${userName}`);
+        }
+        return user;
+    }
 }
 
 export interface User {
