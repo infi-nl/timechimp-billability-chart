@@ -1,6 +1,6 @@
 import Highcharts from 'highcharts';
-import { TimeSummaryByWeek } from './add-billability-chart';
 import { hoursToClockNotation } from '../date';
+import { RollingStats } from './stats';
 
 // Ensure the requestAnimationFrame function is bound to the window.
 // Without this, Highcharts animations won't work properly in Firefox because of strict mode.
@@ -14,20 +14,8 @@ let chart: Highcharts.Chart;
 
 export function createOrUpdateChart(
     element: HTMLElement,
-    timesGroupedByWeek: TimeSummaryByWeek,
+    rollingStats: RollingStats[],
 ) {
-    const billableHours: number[] = [];
-    const nonBillableHours: number[] = [];
-    const averageBillableHours: number[] = [];
-    const totalHours: number[] = [];
-
-    for (const weekSummary of Object.values(timesGroupedByWeek)) {
-        billableHours.push(weekSummary.billableHoursPercentage);
-        nonBillableHours.push(weekSummary.nonBillableHoursPercentage);
-        averageBillableHours.push(weekSummary.averageBillableHours);
-        totalHours.push(weekSummary.totalHours);
-    }
-
     const options: Highcharts.Options = {
         chart: {
             className: 'highcharts-light',
@@ -36,14 +24,15 @@ export function createOrUpdateChart(
             text: 'Facturabiliteit',
         },
         xAxis: {
-            categories: Object.keys(timesGroupedByWeek),
+            categories: rollingStats.map((s) => s.week.toString()),
             labels: {
                 style: textStyle,
                 formatter: (label) => {
                     const weekNum = label.value;
-                    const hours = hoursToClockNotation(
-                        timesGroupedByWeek[weekNum].totalHours,
-                    );
+                    const statsForWeek = rollingStats.find(
+                        (s) => s.week.toString() === weekNum.toString(),
+                    )!;
+                    const hours = hoursToClockNotation(statsForWeek.totalHours);
                     return `Week ${weekNum}<br><b>${hours}</b>`;
                 },
             },
@@ -74,7 +63,7 @@ export function createOrUpdateChart(
             {
                 name: 'Niet facturabel',
                 type: 'column',
-                data: nonBillableHours,
+                data: rollingStats.map((s) => s.nonBillableHoursPercentage),
                 color: '#e6e4e3',
                 tooltip: {
                     valueSuffix: '%',
@@ -84,7 +73,7 @@ export function createOrUpdateChart(
             {
                 name: 'Facturabel',
                 type: 'column',
-                data: billableHours,
+                data: rollingStats.map((s) => s.billableHoursPercentage),
                 color: '#f36f21',
                 tooltip: {
                     valueSuffix: '%',
@@ -94,7 +83,7 @@ export function createOrUpdateChart(
             {
                 name: 'Gem. facturabiliteit',
                 type: 'spline',
-                data: averageBillableHours,
+                data: rollingStats.map((s) => s.averageBillablePercentage),
                 color: '#12121c',
                 lineWidth: 2,
                 tooltip: {
@@ -105,7 +94,7 @@ export function createOrUpdateChart(
             {
                 name: 'Uren gewerkt',
                 type: 'spline',
-                data: totalHours,
+                data: rollingStats.map((s) => s.totalHours),
                 color: '#6d6d77',
                 showInLegend: false,
                 opacity: 0,
