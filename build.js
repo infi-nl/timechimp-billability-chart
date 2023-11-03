@@ -8,7 +8,8 @@ const zipDir = require('zip-dir');
     await build({
         entryPoints: ['src/content/index.ts', 'src/background/timechimp.ts'],
         outdir: 'build',
-        minify: true,
+        // We don't minify, to (hopefully) improve the Chrome store review times.
+        minify: false,
         bundle: true,
         sourcemap: true,
     });
