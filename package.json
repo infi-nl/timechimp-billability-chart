@@ -5,8 +5,8 @@
     "start": "nodemon build.js -e ts,css,json -w src -w manifest.json",
     "build": "rimraf artifacts build build_* && node build.js",
     "type-check": "tsc",
-    "format": "prettier -w src/**",
-    "lint": "prettier -c src/**"
+    "format": "eslint \"src/**/*.ts\" --fix && prettier -w src/**",
+    "lint": "eslint \"src/**/*.ts\" --max-warnings 0 && prettier -c src/**"
   },
   "dependencies": {
     "date-fns": "^2.30.0",
@@ -15,7 +15,10 @@
   "devDependencies": {
     "@types/chrome": "^0.0.248",
     "@types/firefox-webext-browser": "^111.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
     "esbuild": "^0.19.5",
+    "eslint": "^8.53.0",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
