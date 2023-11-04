@@ -16,7 +16,7 @@ setDefaultOptions({
 const api = new TimeChimpApi();
 
 let currentDate = new Date();
-let currentUser: User;
+let currentUser: User | undefined;
 
 /**
  * Listens to incoming messages, and update the billability chart.
@@ -28,26 +28,29 @@ chrome.runtime.onMessage.addListener(async (msg: Message) => {
         currentDate = new Date(msg.date);
     }
 
-    if (msg.userName && msg.userName !== currentUser?.userName) {
-        await updateUserInfo(msg.userName);
+    if (
+        !currentUser ||
+        (msg.userName && msg.userName !== currentUser.userName)
+    ) {
+        currentUser = await getUser(msg.userName);
     }
 
-    await addBillabilityChart(currentDate, currentUser?.id);
+    await addBillabilityChart(currentDate, currentUser.id);
 });
 
 /**
- * Get and store user info based on a userName.
+ * Get the user info based on a userName.
  * If no userName is given, or if this user is not allowed to list all users,
- * the user data for the current user is used.
+ * the user data for the current user is returned.
  */
-async function updateUserInfo(userName?: string) {
+function getUser(userName?: string) {
     if (userName) {
         console.debug(`Getting user info for: ${userName}`);
-        currentUser = await api
+        return api
             .getUserByUserName(userName)
             .catch(() => api.getCurrentUser());
     } else {
         console.debug('Getting current user.');
-        currentUser = await api.getCurrentUser();
+        return api.getCurrentUser();
     }
 }

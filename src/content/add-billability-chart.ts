@@ -17,12 +17,7 @@ const GET_TIMES_WEEKS = SHOW_WEEKS + ROLLING_AVG_WEEKS * 2;
 /**
  * Adds a billability chart on basis of times for the given date from TimeChimp.
  */
-export async function addBillabilityChart(date: Date, userId?: number) {
-    if (!userId) {
-        console.warn('Cannot add billability chart without user id.');
-        return;
-    }
-
+export async function addBillabilityChart(date: Date, userId: number) {
     await doAddBillabilityChart(date, userId).catch((e) =>
         console.error(`Error when adding billability chart: ${e}`),
     );
