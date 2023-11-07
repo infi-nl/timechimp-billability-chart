@@ -10,11 +10,11 @@ const textStyle = {
     fontSize: '12px',
 };
 
-let chart: Highcharts.Chart;
+let chart: Highcharts.Chart | undefined;
 
 export function createOrUpdateChart(
-    element: HTMLElement,
     rollingStats: RollingStats[],
+    element?: HTMLElement,
 ) {
     const options: Highcharts.Options = {
         chart: {
@@ -115,11 +115,13 @@ export function createOrUpdateChart(
         },
     };
 
-    if (chart) {
-        console.debug('Updating existing chart');
+    if (element) {
+        console.debug('Creating new chart.');
+        chart = Highcharts.chart(element, options);
+    } else if (chart) {
+        console.debug('Updating existing chart.');
         chart.update(options);
     } else {
-        console.debug('Creating new chart');
-        chart = Highcharts.chart(element, options);
+        console.error('No chart container given and no existing chart set.');
     }
 }

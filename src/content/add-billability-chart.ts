@@ -30,15 +30,16 @@ async function doAddBillabilityChart(date: Date, userId: number) {
         return;
     }
 
-    let chartContainer = addTimePanel.querySelector('#billability-card');
-    if (!chartContainer) {
+    // Check if the chart container already exists.
+    // If not, create a new element which can be used as the chart parent.
+    let chartContainer: HTMLElement | undefined;
+    if (!addTimePanel.querySelector('#billability-card')) {
         chartContainer = addTimePanel.appendChild(createBillabilityCard());
     }
 
     const times = await getTimes(userId, date, GET_TIMES_WEEKS);
-
     const stats = calculateTimeStats(times, SHOW_WEEKS, ROLLING_AVG_WEEKS);
-    createOrUpdateChart(chartContainer as HTMLElement, stats);
+    createOrUpdateChart(stats, chartContainer);
 }
 
 function createBillabilityCard() {
