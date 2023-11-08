@@ -66,8 +66,20 @@ export function createOrUpdateChart(
                 data: rollingStats.map((s) => s.nonBillableHoursPercentage),
                 color: '#e6e4e3',
                 tooltip: {
-                    valueSuffix: '%',
-                    valueDecimals: 0,
+                    pointFormatter: function () {
+                        const hours =
+                            rollingStats.find(
+                                (s) => s.week === Number(this.category),
+                            )?.nonBillableHours ?? 0;
+
+                        return this.tooltipFormatter(
+                            formatTooltip(
+                                `${Math.round(
+                                    this.y ?? 0,
+                                )}% (${hoursToClockNotation(hours)})`,
+                            ),
+                        );
+                    },
                 },
             },
             {
@@ -76,8 +88,20 @@ export function createOrUpdateChart(
                 data: rollingStats.map((s) => s.billableHoursPercentage),
                 color: '#f36f21',
                 tooltip: {
-                    valueSuffix: '%',
-                    valueDecimals: 0,
+                    pointFormatter: function () {
+                        const hours =
+                            rollingStats.find(
+                                (s) => s.week === Number(this.category),
+                            )?.billableHours ?? 0;
+
+                        return this.tooltipFormatter(
+                            formatTooltip(
+                                `${Math.round(
+                                    this.y ?? 0,
+                                )}% (${hoursToClockNotation(hours)})`,
+                            ),
+                        );
+                    },
                 },
             },
             {
@@ -100,9 +124,9 @@ export function createOrUpdateChart(
                 opacity: 0,
                 tooltip: {
                     pointFormatter: function () {
-                        const hours = hoursToClockNotation(this.y ?? 0);
-                        const format = `<span style='color:{point.color}'>●</span> {series.name}: <b>${hours}</b><br/>`;
-                        return this.tooltipFormatter.call(this, format);
+                        return this.tooltipFormatter(
+                            formatTooltip(hoursToClockNotation(this.y ?? 0)),
+                        );
                     },
                 },
             },
@@ -124,4 +148,8 @@ export function createOrUpdateChart(
     } else {
         console.error('No chart container given and no existing chart set.');
     }
+}
+
+function formatTooltip(value: string) {
+    return `<span style='color:{point.color}'>●</span> {series.name}: <b>${value}</b><br/>`;
 }
