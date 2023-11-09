@@ -1,7 +1,12 @@
 import { Time } from '../TimeChimpApi';
 import { getWeek } from 'date-fns';
 
-const LEAVE_TASKS = ['Bijzonder verlof', 'Feestdag', 'Verlof'];
+const LEAVE_TASKS = [
+    'Bijzonder verlof',
+    'Feestdag',
+    'Tijd voor tijd',
+    'Verlof',
+];
 
 type TimesByWeek = Record<number, Time[]>;
 
