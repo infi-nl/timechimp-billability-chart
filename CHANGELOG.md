@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.5.0
+
+- Exclude leave tasks from billability calculation.
+- Show leave hours in tooltip.
+
 ## v1.4.0
 
 - Show actual hours next to billability percentages in tooltip.
