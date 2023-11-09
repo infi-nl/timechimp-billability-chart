@@ -1,12 +1,15 @@
 import { Time } from '../TimeChimpApi';
 import { getWeek } from 'date-fns';
 
+const LEAVE_TASKS = ['Bijzonder verlof', 'Feestdag', 'Verlof'];
+
 type TimesByWeek = Record<number, Time[]>;
 
 interface Stats {
     week: number;
     billableHours: number;
     nonBillableHours: number;
+    leaveHours: number;
     totalHours: number;
     billableHoursPercentage: number;
     nonBillableHoursPercentage: number;
@@ -43,7 +46,7 @@ function groupTimesByWeek(times: Time[]) {
 
 function removeLeaveOnlyWeeks(timesByWeek: TimesByWeek) {
     Object.entries(timesByWeek).forEach(([weekStr, times]) => {
-        if (isLeaveOnly(times)) {
+        if (times.every((t) => LEAVE_TASKS.includes(t.taskName))) {
             delete timesByWeek[Number(weekStr)];
         }
     });
@@ -56,18 +59,28 @@ function calculateStatsPerWeek(timesByWeek: TimesByWeek) {
                 times.filter((t) => t.billable).map((t) => t.hours),
             );
             const nonBillableHours = sum(
-                times.filter((t) => !t.billable).map((t) => t.hours),
+                times
+                    .filter(
+                        (t) => !t.billable && !LEAVE_TASKS.includes(t.taskName),
+                    )
+                    .map((t) => t.hours),
             );
-            const totalHours = billableHours + nonBillableHours;
+            const totalHoursWithoutLeave = billableHours + nonBillableHours;
 
             return {
                 week: Number(weekStr),
                 billableHours,
                 nonBillableHours,
-                totalHours,
-                billableHoursPercentage: (100 * billableHours) / totalHours,
+                totalHours: sum(times.map((t) => t.hours)),
+                leaveHours: sum(
+                    times
+                        .filter((t) => LEAVE_TASKS.includes(t.taskName))
+                        .map((t) => t.hours),
+                ),
+                billableHoursPercentage:
+                    (100 * billableHours) / totalHoursWithoutLeave,
                 nonBillableHoursPercentage:
-                    (100 * nonBillableHours) / totalHours,
+                    (100 * nonBillableHours) / totalHoursWithoutLeave,
             };
         })
         .sort((a, b) => b.week - a.week);
@@ -96,13 +109,4 @@ function calculateRollingStats(
 
 function sum(n: number[]) {
     return n.reduce((acc, cur) => acc + cur, 0);
-}
-
-function isLeaveOnly(times: Time[]) {
-    return times.every(
-        (time) =>
-            time.taskName === 'Verlof' ||
-            time.taskName === 'Feestdag' ||
-            time.taskName === 'Bijzonder verlof',
-    );
 }

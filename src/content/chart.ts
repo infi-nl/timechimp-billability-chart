@@ -116,7 +116,22 @@ export function createOrUpdateChart(
                 },
             },
             {
-                name: 'Uren gewerkt',
+                name: 'Verlof',
+                type: 'spline',
+                data: rollingStats.map((s) => s.leaveHours),
+                color: '#efd722',
+                showInLegend: false,
+                opacity: 0,
+                tooltip: {
+                    pointFormatter: function () {
+                        return this.tooltipFormatter(
+                            formatTooltip(hoursToClockNotation(this.y ?? 0)),
+                        );
+                    },
+                },
+            },
+            {
+                name: 'Totaal',
                 type: 'spline',
                 data: rollingStats.map((s) => s.totalHours),
                 color: '#6d6d77',
