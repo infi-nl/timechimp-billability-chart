@@ -1,5 +1,7 @@
 # TimeChimp billability extension
 
+[![CI](https://github.com/infi-nl/timechimp-billability-chart/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/infi-nl/timechimp-billability-chart/actions/workflows/ci.yml)
+
 Shows your billability of the last 5 weeks, on basis of the hours within TimeChimp.
 
 Each week includes the average billability of the 4 weeks before. Whenever a week only has days booked on leave or public holidays, a week earlier is used for the average calculation.
