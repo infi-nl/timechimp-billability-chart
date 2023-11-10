@@ -1,8 +1,10 @@
-# TimeChimp billability extension
+# TimeChimp Billability Chart
 
-Shows your billability of the last 5 weeks, on basis of the hours within TimeChimp.
+[![CI](https://github.com/infi-nl/timechimp-billability-chart/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/infi-nl/timechimp-billability-chart/actions/workflows/ci.yml)
 
-Each week includes the average billability of the 4 weeks before. Whenever a week only has days booked on leave or public holidays, a week earlier is used for the average calculation.
+A browser extension to show your billability over the past 5 weeks in TimeChimp.
+
+![Screenshot of the TimeChimp page with the billability chart](screenshot.png)
 
 ## Usage
 
@@ -11,7 +13,31 @@ The simplest way to use the extension is via the extension marketplace for your 
 - [Firefox](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart)
 - [Chrome and Edge](https://chrome.google.com/webstore/detail/timechimp-billability-cha/eleodjmnfjlgiidglnlfclhffhgkgpdp)
 
-## Quick Start
+## Calculations
+
+The billability is calculated based on the amount of billable hours, and non-billable non-leave hours.
+Specifically:
+
+```math
+billability = 100 * \frac{billableHours}{totalHours - nonBillableLeaveHours}
+```
+
+Here `nonBillableLeaveHours` are time entries related to leave and holidays.
+These are entries with the following task names:
+
+- Bijzonder verlof
+- Feestdag
+- Tijd voor tijd
+- Verlof
+
+These are left out to give a better view of your billability in the time you actually worked.
+
+Each week also includes a rolling average billability, which includes the 4 weeks before.
+Weeks consisting of only non-billable leave hours are skipped in this rolling average.
+
+## Development
+
+### Quick Start
 
 ```shell
 # Install the dependencies
@@ -29,7 +55,7 @@ npm run format
 
 To load the extension in your browser, check the docs for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
 
-## Developing the extension
+### Step by Step
 
 First, you need to clone the repository, and install all dependencies:
 
@@ -55,5 +81,3 @@ Without this, you won't see your changes in the browser.
 
 You can now open [TimeChimp](https://app.timechimp.com/#/registration/time/day),
 and you should see the billability chart right below the time entry form.
-
-![Screenshot of the TimeChimp page with the billability chart](screenshot.png)
