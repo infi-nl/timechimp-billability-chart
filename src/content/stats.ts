@@ -1,5 +1,5 @@
 import { Time } from '../TimeChimpApi';
-import { getWeek } from 'date-fns';
+import { getWeek, getYear } from 'date-fns';
 
 const LEAVE_TASKS = [
     'Bijzonder verlof',
@@ -8,9 +8,10 @@ const LEAVE_TASKS = [
     'Verlof',
 ];
 
-type TimesByWeek = Record<number, Time[]>;
+type TimesByYearWeek = Record<string, Time[]>;
 
 interface Stats {
+    year: number;
     week: number;
     billableHours: number;
     nonBillableHours: number;
@@ -29,37 +30,38 @@ export function calculateTimeStats(
     showWeeks: number,
     rollWeeks: number,
 ) {
-    const timesByWeek = groupTimesByWeek(times);
-    removeLeaveOnlyWeeks(timesByWeek);
-    const stats = calculateStatsPerWeek(timesByWeek);
+    const timesByYearWeek = groupTimesByYearWeek(times);
+    removeLeaveOnlyWeeks(timesByYearWeek);
+    const stats = calculateStatsPerWeek(timesByYearWeek);
     const rollingStats = calculateRollingStats(stats, showWeeks, rollWeeks);
     return rollingStats.reverse();
 }
 
-function groupTimesByWeek(times: Time[]) {
-    return times.reduce<TimesByWeek>((acc, time) => {
-        const week = getWeek(new Date(time.date));
+function groupTimesByYearWeek(times: Time[]) {
+    return times.reduce<TimesByYearWeek>((acc, time) => {
+        const date = new Date(time.date);
+        const yearWeek = `${getYear(date)}-${getWeek(date)}`;
 
-        if (!acc[week]) {
-            acc[week] = [];
+        if (!acc[yearWeek]) {
+            acc[yearWeek] = [];
         }
 
-        acc[week].push(time);
+        acc[yearWeek].push(time);
         return acc;
-    }, []);
+    }, {});
 }
 
-function removeLeaveOnlyWeeks(timesByWeek: TimesByWeek) {
-    Object.entries(timesByWeek).forEach(([weekStr, times]) => {
+function removeLeaveOnlyWeeks(timesByYearWeek: TimesByYearWeek) {
+    Object.entries(timesByYearWeek).forEach(([yearWeekStr, times]) => {
         if (times.every((t) => LEAVE_TASKS.includes(t.taskName))) {
-            delete timesByWeek[Number(weekStr)];
+            delete timesByYearWeek[yearWeekStr];
         }
     });
 }
 
-function calculateStatsPerWeek(timesByWeek: TimesByWeek) {
-    return Object.entries(timesByWeek)
-        .map<Stats>(([weekStr, times]) => {
+function calculateStatsPerWeek(timesByYearWeek: TimesByYearWeek) {
+    return Object.entries(timesByYearWeek)
+        .map<Stats>(([yearWeekStr, times]) => {
             const billableHours = sum(
                 times.filter((t) => t.billable).map((t) => t.hours),
             );
@@ -73,7 +75,8 @@ function calculateStatsPerWeek(timesByWeek: TimesByWeek) {
             const totalHoursWithoutLeave = billableHours + nonBillableHours;
 
             return {
-                week: Number(weekStr),
+                year: Number(yearWeekStr.substring(0, 4)),
+                week: Number(yearWeekStr.substring(5)),
                 billableHours,
                 nonBillableHours,
                 totalHours: sum(times.map((t) => t.hours)),
@@ -88,7 +91,9 @@ function calculateStatsPerWeek(timesByWeek: TimesByWeek) {
                     (100 * nonBillableHours) / totalHoursWithoutLeave,
             };
         })
-        .sort((a, b) => b.week - a.week);
+        .sort((a, b) =>
+            a.year === b.year ? b.week - a.week : b.year - a.year,
+        );
 }
 
 function calculateRollingStats(
