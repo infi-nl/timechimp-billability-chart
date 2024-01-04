@@ -37,9 +37,13 @@ async function doAddBillabilityChart(date: Date, userId: number) {
         chartContainer = addTimePanel.appendChild(createBillabilityCard());
     }
 
-    const times = await getTimes(userId, date, GET_TIMES_WEEKS);
+    const [times, company] = await Promise.all([
+        getTimes(userId, date, GET_TIMES_WEEKS),
+        api.getCompany(),
+    ]);
+
     const stats = calculateTimeStats(times, SHOW_WEEKS, ROLLING_AVG_WEEKS);
-    createOrUpdateChart(stats, chartContainer);
+    createOrUpdateChart(stats, company.theme?.mainColor, chartContainer);
 }
 
 function createBillabilityCard() {
