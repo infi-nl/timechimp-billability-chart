@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.5.2
+
+- Fix week ordering between years.
+
 ## v1.5.1
 
 - Add "Tijd voor tijd" to leave tasks.
