@@ -1,6 +1,6 @@
 # Changelog
 
-## Upcoming
+## v1.6.0
 
 - Load theme color for billable section of the chart from company configuration.
 
