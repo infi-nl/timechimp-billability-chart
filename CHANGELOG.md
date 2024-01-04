@@ -1,5 +1,9 @@
 # Changelog
 
+## Upcoming
+
+- Load theme color for billable section of the chart from company configuration.
+
 ## v1.5.2
 
 - Fix week ordering between years.
