@@ -12,8 +12,12 @@ const textStyle = {
 
 let chart: Highcharts.Chart | undefined;
 
+// The default TimeChimp "blurple" color.
+const TC_BLURPLE = '#6559d2';
+
 export function createOrUpdateChart(
     rollingStats: RollingStats[],
+    billableColor?: string,
     element?: HTMLElement,
 ) {
     const options: Highcharts.Options = {
@@ -86,7 +90,7 @@ export function createOrUpdateChart(
                 name: 'Facturabel',
                 type: 'column',
                 data: rollingStats.map((s) => s.billableHoursPercentage),
-                color: '#f36f21',
+                color: billableColor ?? TC_BLURPLE,
                 tooltip: {
                     pointFormatter: function () {
                         const hours =

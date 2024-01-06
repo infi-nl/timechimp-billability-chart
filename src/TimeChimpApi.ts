@@ -37,6 +37,10 @@ export class TimeChimpApi {
         }
         return user;
     }
+
+    public getCompany(): Promise<Company> {
+        return this.doFetch('/api/company');
+    }
 }
 
 export interface User {
@@ -50,4 +54,12 @@ export interface Time {
     hours: number;
     billable: boolean;
     taskName: string;
+}
+
+export interface Company {
+    theme?: Theme;
+}
+
+export interface Theme {
+    mainColor?: string;
 }
