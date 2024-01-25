@@ -42,13 +42,21 @@ async function doAddBillabilityChart(date: Date, user: User) {
         api.getCompany(),
     ]);
 
+    // TODO: Only set this when that setting is enabled.
+    const contractHours = user.contractHours;
+
     const stats = calculateTimeStats(
         times,
-        user.contractHours, // TODO: Only pass this when that setting is enabled.
+        contractHours,
         SHOW_WEEKS,
         ROLLING_AVG_WEEKS,
     );
-    createOrUpdateChart(stats, company.theme?.mainColor, chartContainer);
+    createOrUpdateChart(
+        stats,
+        !!contractHours,
+        company.theme?.mainColor,
+        chartContainer,
+    );
 }
 
 function createBillabilityCard() {

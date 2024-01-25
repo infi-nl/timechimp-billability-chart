@@ -17,6 +17,7 @@ const TC_BLURPLE = '#6559d2';
 
 export function createOrUpdateChart(
     rollingStats: RollingStats[],
+    relativeToContractHours: boolean,
     billableColor?: string,
     element?: HTMLElement,
 ) {
@@ -44,6 +45,7 @@ export function createOrUpdateChart(
         yAxis: {
             min: 0,
             softMax: 100,
+            max: !relativeToContractHours ? 100 : undefined,
             tickInterval: 25,
             title: {
                 text: undefined,
