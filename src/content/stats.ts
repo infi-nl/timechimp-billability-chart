@@ -27,12 +27,13 @@ export interface RollingStats extends Stats {
 
 export function calculateTimeStats(
     times: Time[],
+    contractHours: number | undefined,
     showWeeks: number,
     rollWeeks: number,
 ) {
     const timesByYearWeek = groupTimesByYearWeek(times);
     removeLeaveOnlyWeeks(timesByYearWeek);
-    const stats = calculateStatsPerWeek(timesByYearWeek);
+    const stats = calculateStatsPerWeek(timesByYearWeek, contractHours);
     const rollingStats = calculateRollingStats(stats, showWeeks, rollWeeks);
     return rollingStats.reverse();
 }
@@ -59,7 +60,10 @@ function removeLeaveOnlyWeeks(timesByYearWeek: TimesByYearWeek) {
     });
 }
 
-function calculateStatsPerWeek(timesByYearWeek: TimesByYearWeek) {
+function calculateStatsPerWeek(
+    timesByYearWeek: TimesByYearWeek,
+    contractHours?: number,
+) {
     return Object.entries(timesByYearWeek)
         .map<Stats>(([yearWeekStr, times]) => {
             const billableHours = sum(
@@ -85,15 +89,32 @@ function calculateStatsPerWeek(timesByYearWeek: TimesByYearWeek) {
                         .filter((t) => LEAVE_TASKS.includes(t.taskName))
                         .map((t) => t.hours),
                 ),
-                billableHoursPercentage:
-                    (100 * billableHours) / totalHoursWithoutLeave,
-                nonBillableHoursPercentage:
-                    (100 * nonBillableHours) / totalHoursWithoutLeave,
+                billableHoursPercentage: calculateHoursPercentage(
+                    billableHours,
+                    totalHoursWithoutLeave,
+                    contractHours,
+                ),
+                nonBillableHoursPercentage: calculateHoursPercentage(
+                    nonBillableHours,
+                    totalHoursWithoutLeave,
+                    contractHours,
+                ),
             };
         })
         .sort((a, b) =>
             a.year === b.year ? b.week - a.week : b.year - a.year,
         );
+}
+
+function calculateHoursPercentage(
+    hours: number,
+    totalHours: number,
+    contractHours?: number,
+) {
+    // Here we specifically want to use || instead of ??,
+    // since we also want to use totalHours if contractHours is 0.
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    return (100 * hours) / (contractHours || totalHours);
 }
 
 function calculateRollingStats(

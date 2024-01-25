@@ -1,5 +1,5 @@
 import { createOrUpdateChart } from './chart';
-import { TimeChimpApi } from '../TimeChimpApi';
+import { TimeChimpApi, User } from '../TimeChimpApi';
 import { toIsoDate } from '../date';
 import { endOfWeek, getWeek, startOfWeek, subWeeks } from 'date-fns';
 import { calculateTimeStats } from './stats';
@@ -17,13 +17,13 @@ const GET_TIMES_WEEKS = SHOW_WEEKS + ROLLING_AVG_WEEKS * 2;
 /**
  * Adds a billability chart on basis of times for the given date from TimeChimp.
  */
-export async function addBillabilityChart(date: Date, userId: number) {
-    await doAddBillabilityChart(date, userId).catch((e) =>
+export async function addBillabilityChart(date: Date, user: User) {
+    await doAddBillabilityChart(date, user).catch((e) =>
         console.error(`Error when adding billability chart: ${e}`),
     );
 }
 
-async function doAddBillabilityChart(date: Date, userId: number) {
+async function doAddBillabilityChart(date: Date, user: User) {
     const addTimePanel = document.querySelector('.col-md-4');
     if (!addTimePanel?.querySelector('form[name="addTimeForm"]')) {
         console.debug('Add time form not found, returning');
@@ -38,11 +38,16 @@ async function doAddBillabilityChart(date: Date, userId: number) {
     }
 
     const [times, company] = await Promise.all([
-        getTimes(userId, date, GET_TIMES_WEEKS),
+        getTimes(user.id, date, GET_TIMES_WEEKS),
         api.getCompany(),
     ]);
 
-    const stats = calculateTimeStats(times, SHOW_WEEKS, ROLLING_AVG_WEEKS);
+    const stats = calculateTimeStats(
+        times,
+        user.contractHours, // TODO: Only pass this when that setting is enabled.
+        SHOW_WEEKS,
+        ROLLING_AVG_WEEKS,
+    );
     createOrUpdateChart(stats, company.theme?.mainColor, chartContainer);
 }
 

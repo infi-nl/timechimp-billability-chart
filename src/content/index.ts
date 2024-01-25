@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener(async (msg: Message) => {
         currentUser = await getUser(msg.userName);
     }
 
-    await addBillabilityChart(currentDate, currentUser.id);
+    await addBillabilityChart(currentDate, currentUser);
 });
 
 /**
