@@ -54,6 +54,14 @@ export function createOrUpdateChart(
                 format: '{text}%',
                 style: textStyle,
             },
+            plotLines: relativeToContractHours
+                ? [
+                      {
+                          value: 100,
+                          width: 2,
+                      },
+                  ]
+                : undefined,
         },
         tooltip: {
             shared: true,
