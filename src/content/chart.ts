@@ -43,7 +43,7 @@ export function createOrUpdateChart(
         },
         yAxis: {
             min: 0,
-            max: 100,
+            softMax: 100,
             tickInterval: 25,
             title: {
                 text: undefined,
