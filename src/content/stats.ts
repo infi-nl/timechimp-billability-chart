@@ -69,14 +69,23 @@ function calculateStatsPerWeek(
             const billableHours = sum(
                 times.filter((t) => t.billable).map((t) => t.hours),
             );
-            const nonBillableHours = sum(
+            let nonBillableHours = sum(
+                times.filter((t) => !t.billable).map((t) => t.hours),
+            );
+            const excludedLeaveHours = sum(
                 times
                     .filter(
-                        (t) => !t.billable && !LEAVE_TASKS.includes(t.taskName),
+                        (t) => !t.billable && LEAVE_TASKS.includes(t.taskName),
                     )
                     .map((t) => t.hours),
             );
-            const totalHoursWithoutLeave = billableHours + nonBillableHours;
+
+            // If we are not calculating relative to contract hours,
+            // exclude leave tasks from the non-billable (and thus total) hours.
+            if (!contractHours) {
+                nonBillableHours -= excludedLeaveHours;
+            }
+            const totalHours = billableHours + nonBillableHours;
 
             return {
                 year: Number(yearWeekStr.substring(0, 4)),
@@ -91,12 +100,12 @@ function calculateStatsPerWeek(
                 ),
                 billableHoursPercentage: calculateHoursPercentage(
                     billableHours,
-                    totalHoursWithoutLeave,
+                    totalHours,
                     contractHours,
                 ),
                 nonBillableHoursPercentage: calculateHoursPercentage(
                     nonBillableHours,
-                    totalHoursWithoutLeave,
+                    totalHours,
                     contractHours,
                 ),
             };
