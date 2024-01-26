@@ -3,6 +3,7 @@ import { TimeChimpApi, User } from '../TimeChimpApi';
 import { toIsoDate } from '../date';
 import { endOfWeek, getWeek, startOfWeek, subWeeks } from 'date-fns';
 import { calculateTimeStats } from './stats';
+import { getSettings } from './settings';
 
 const api = new TimeChimpApi();
 
@@ -42,18 +43,17 @@ async function doAddBillabilityChart(date: Date, user: User) {
         api.getCompany(),
     ]);
 
-    // TODO: Only set this when that setting is enabled.
-    const contractHours = user.contractHours;
+    const settings = getSettings();
 
     const stats = calculateTimeStats(
         times,
-        contractHours,
+        settings.relativeToContractHours ? user.contractHours : undefined,
         SHOW_WEEKS,
         ROLLING_AVG_WEEKS,
     );
     createOrUpdateChart(
         stats,
-        !!contractHours,
+        settings.relativeToContractHours,
         company.theme?.mainColor,
         chartContainer,
     );
