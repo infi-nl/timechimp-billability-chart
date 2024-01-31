@@ -45,7 +45,7 @@ export function createOrUpdateChart(
         yAxis: {
             min: 0,
             softMax: 100,
-            max: !relativeToContractHours ? 100 : undefined,
+            max: relativeToContractHours ? undefined : 100,
             tickInterval: 25,
             title: {
                 text: undefined,
