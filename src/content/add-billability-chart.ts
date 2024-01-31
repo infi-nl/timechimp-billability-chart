@@ -71,7 +71,14 @@ function createBillabilityCard(addTimePanel: Element) {
 
     const actions = document.createElement('div');
     card.appendChild(actions);
-    actions.className = 'actions text-align-right';
+    actions.className = 'actions';
+
+    const spinner = document.createElement('tc-spinner');
+    actions.appendChild(spinner);
+    spinner.className = 'title-date-spinner';
+    const spinnerIcon = document.createElement('i');
+    spinner.appendChild(spinnerIcon);
+    spinnerIcon.className = 'fa fa-circle-o-notch fa-spin';
 
     const toggleViewBtn = document.createElement('button');
 
