@@ -74,13 +74,23 @@ function createBillabilityCard(addTimePanel: Element) {
     actions.className = 'actions text-align-right';
 
     const toggleViewBtn = document.createElement('button');
+
+    const setBtnText = () => {
+        toggleViewBtn.textContent = `Relatief aan: ${
+            getSettings().relativeToContractHours
+                ? 'contracturen'
+                : 'uren gewerkt'
+        }`;
+    };
+    setBtnText();
+
     actions.appendChild(toggleViewBtn);
     toggleViewBtn.className = 'btn btn-timechimp-border';
-    toggleViewBtn.textContent = 'Toggle!';
     toggleViewBtn.addEventListener('click', () => {
         updateSettings({
             relativeToContractHours: !getSettings().relativeToContractHours,
         });
+        setBtnText();
         render();
     });
 
