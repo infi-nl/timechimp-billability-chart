@@ -1,4 +1,8 @@
-.billability-card {
-    padding-top: 4px;
+.billability-card > .chart {
     height: 350px;
+}
+
+.billability-card > .actions > button {
+    margin-right: 20px;
+    margin-bottom: 20px;
 }

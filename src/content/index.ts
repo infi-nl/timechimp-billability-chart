@@ -28,15 +28,16 @@ chrome.runtime.onMessage.addListener(async (msg: Message) => {
         currentDate = new Date(msg.date);
     }
 
-    if (
-        !currentUser ||
-        (msg.userName && msg.userName !== currentUser.userName)
-    ) {
-        currentUser = await getUser(msg.userName);
+    await render(msg.userName);
+});
+
+export async function render(userName?: string) {
+    if (!currentUser || (userName && userName !== currentUser.userName)) {
+        currentUser = await getUser(userName);
     }
 
     await addBillabilityChart(currentDate, currentUser);
-});
+}
 
 /**
  * Get the user info based on a userName.

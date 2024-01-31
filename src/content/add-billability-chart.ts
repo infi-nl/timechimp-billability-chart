@@ -3,7 +3,8 @@ import { TimeChimpApi, User } from '../TimeChimpApi';
 import { toIsoDate } from '../date';
 import { endOfWeek, getWeek, startOfWeek, subWeeks } from 'date-fns';
 import { calculateTimeStats } from './stats';
-import { getSettings } from './settings';
+import { getSettings, updateSettings } from './settings';
+import { render } from './index';
 
 const api = new TimeChimpApi();
 
@@ -35,7 +36,7 @@ async function doAddBillabilityChart(date: Date, user: User) {
     // If not, create a new element which can be used as the chart parent.
     let chartContainer: HTMLElement | undefined;
     if (!addTimePanel.querySelector('#billability-card')) {
-        chartContainer = addTimePanel.appendChild(createBillabilityCard());
+        chartContainer = createBillabilityCard(addTimePanel);
     }
 
     const [times, company] = await Promise.all([
@@ -59,11 +60,32 @@ async function doAddBillabilityChart(date: Date, user: User) {
     );
 }
 
-function createBillabilityCard() {
+function createBillabilityCard(addTimePanel: Element) {
     const card = document.createElement('div');
     card.className = 'card billability-card';
     card.id = 'billability-card';
-    return card;
+
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'chart';
+    card.appendChild(chartContainer);
+
+    const actions = document.createElement('div');
+    card.appendChild(actions);
+    actions.className = 'actions text-align-right';
+
+    const toggleViewBtn = document.createElement('button');
+    actions.appendChild(toggleViewBtn);
+    toggleViewBtn.className = 'btn btn-timechimp-border';
+    toggleViewBtn.textContent = 'Toggle!';
+    toggleViewBtn.addEventListener('click', () => {
+        updateSettings({
+            relativeToContractHours: !getSettings().relativeToContractHours,
+        });
+        render();
+    });
+
+    addTimePanel.appendChild(card);
+    return chartContainer;
 }
 
 /**
