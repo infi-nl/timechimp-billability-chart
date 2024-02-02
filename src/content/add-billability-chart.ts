@@ -38,10 +38,12 @@ async function doAddBillabilityChart(date: Date, user: User) {
         chartContainer = createBillabilityCard(addTimePanel);
     }
 
+    updateLoadingState(true);
     const [times, company] = await Promise.all([
         getTimes(user.id, date, GET_TIMES_WEEKS),
         api.getCompany(),
     ]);
+    updateLoadingState(false);
 
     const settings = getSettings();
 
@@ -77,7 +79,8 @@ function createBillabilityCard(addTimePanel: Element) {
     spinner.className = 'title-date-spinner';
     const spinnerIcon = document.createElement('i');
     spinner.appendChild(spinnerIcon);
-    spinnerIcon.className = 'fa fa-circle-o-notch fa-spin';
+    spinnerIcon.id = 'billability-loading';
+    spinnerIcon.className = 'fa fa-circle-o-notch fa-spin hidden';
 
     const toggleViewBtn = document.createElement('button');
 
@@ -101,6 +104,15 @@ function createBillabilityCard(addTimePanel: Element) {
 
     addTimePanel.appendChild(card);
     return chartContainer;
+}
+
+function updateLoadingState(loading: boolean) {
+    const spinner = document.getElementById('billability-loading');
+    if (spinner) {
+        loading
+            ? spinner.classList.remove('hidden')
+            : spinner.classList.add('hidden');
+    }
 }
 
 /**

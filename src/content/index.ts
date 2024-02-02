@@ -10,7 +10,7 @@ import { settingsUpdateEvent } from './settings';
 setDefaultOptions({
     // Weeks start on Monday.
     weekStartsOn: 1,
-    // Week number 1 should contain the 4th on January.
+    // Week number 1 should contain the 4th of January.
     firstWeekContainsDate: 4,
 });
 
