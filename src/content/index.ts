@@ -4,6 +4,7 @@ import { addBillabilityChart } from './add-billability-chart';
 import { Message } from '../message';
 import setDefaultOptions from 'date-fns/setDefaultOptions';
 import { TimeChimpApi, User } from '../TimeChimpApi';
+import { settingsUpdateEvent } from './settings';
 
 // Default date-fns options.
 setDefaultOptions({
@@ -18,6 +19,8 @@ const api = new TimeChimpApi();
 let currentDate = new Date();
 let currentUser: User | undefined;
 
+settingsUpdateEvent.addListener(() => render());
+
 /**
  * Listens to incoming messages, and update the billability chart.
  */
@@ -31,7 +34,7 @@ chrome.runtime.onMessage.addListener(async (msg: Message) => {
     await render(msg.userName);
 });
 
-export async function render(userName?: string) {
+async function render(userName?: string) {
     if (!currentUser || (userName && userName !== currentUser.userName)) {
         currentUser = await getUser(userName);
     }

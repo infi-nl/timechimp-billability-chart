@@ -1,3 +1,5 @@
+import { EventEmitter } from '../EventEmitter';
+
 const STORAGE_KEY = 'tcbc-settings';
 
 export interface Settings {
@@ -9,6 +11,8 @@ let settings: Settings | undefined;
 const DEFAULT_SETTINGS: Settings = {
     relativeToContractHours: false,
 };
+
+export const settingsUpdateEvent = new EventEmitter();
 
 export function getSettings(): Settings {
     // Try to load the settings.
@@ -33,6 +37,7 @@ export function updateSettings(updates: Partial<Settings>) {
         ...updates,
     };
     saveSettings();
+    settingsUpdateEvent.fire();
 }
 
 function tryLoadSettings() {

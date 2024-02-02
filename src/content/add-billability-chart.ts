@@ -4,7 +4,6 @@ import { toIsoDate } from '../date';
 import { endOfWeek, getWeek, startOfWeek, subWeeks } from 'date-fns';
 import { calculateTimeStats } from './stats';
 import { getSettings, updateSettings } from './settings';
-import { render } from './index';
 
 const api = new TimeChimpApi();
 
@@ -98,7 +97,6 @@ function createBillabilityCard(addTimePanel: Element) {
             relativeToContractHours: !getSettings().relativeToContractHours,
         });
         setBtnText();
-        render();
     });
 
     addTimePanel.appendChild(card);
