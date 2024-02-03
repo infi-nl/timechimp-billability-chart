@@ -1,8 +1,10 @@
 import { createOrUpdateChart } from './chart';
-import { TimeChimpApi } from '../TimeChimpApi';
+import { TimeChimpApi, User } from '../TimeChimpApi';
 import { toIsoDate } from '../date';
 import { endOfWeek, getWeek, startOfWeek, subWeeks } from 'date-fns';
 import { calculateTimeStats } from './stats';
+import { getSettings, updateSettings } from './settings';
+import { render } from './index';
 
 const api = new TimeChimpApi();
 
@@ -17,13 +19,13 @@ const GET_TIMES_WEEKS = SHOW_WEEKS + ROLLING_AVG_WEEKS * 2;
 /**
  * Adds a billability chart on basis of times for the given date from TimeChimp.
  */
-export async function addBillabilityChart(date: Date, userId: number) {
-    await doAddBillabilityChart(date, userId).catch((e) =>
+export async function addBillabilityChart(date: Date, user: User) {
+    await doAddBillabilityChart(date, user).catch((e) =>
         console.error(`Error when adding billability chart: ${e}`),
     );
 }
 
-async function doAddBillabilityChart(date: Date, userId: number) {
+async function doAddBillabilityChart(date: Date, user: User) {
     const addTimePanel = document.querySelector('.col-md-4');
     if (!addTimePanel?.querySelector('form[name="addTimeForm"]')) {
         console.debug('Add time form not found, returning');
@@ -34,23 +36,66 @@ async function doAddBillabilityChart(date: Date, userId: number) {
     // If not, create a new element which can be used as the chart parent.
     let chartContainer: HTMLElement | undefined;
     if (!addTimePanel.querySelector('#billability-card')) {
-        chartContainer = addTimePanel.appendChild(createBillabilityCard());
+        chartContainer = createBillabilityCard(addTimePanel);
     }
 
     const [times, company] = await Promise.all([
-        getTimes(userId, date, GET_TIMES_WEEKS),
+        getTimes(user.id, date, GET_TIMES_WEEKS),
         api.getCompany(),
     ]);
 
-    const stats = calculateTimeStats(times, SHOW_WEEKS, ROLLING_AVG_WEEKS);
-    createOrUpdateChart(stats, company.theme?.mainColor, chartContainer);
+    const settings = getSettings();
+
+    const stats = calculateTimeStats(
+        times,
+        settings.relativeToContractHours ? user.contractHours : undefined,
+        SHOW_WEEKS,
+        ROLLING_AVG_WEEKS,
+    );
+    createOrUpdateChart(
+        stats,
+        settings.relativeToContractHours,
+        company.theme?.mainColor,
+        chartContainer,
+    );
 }
 
-function createBillabilityCard() {
+function createBillabilityCard(addTimePanel: Element) {
     const card = document.createElement('div');
     card.className = 'card billability-card';
     card.id = 'billability-card';
-    return card;
+
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'chart';
+    card.appendChild(chartContainer);
+
+    const actions = document.createElement('div');
+    card.appendChild(actions);
+    actions.className = 'actions text-align-right';
+
+    const toggleViewBtn = document.createElement('button');
+
+    const setBtnText = () => {
+        toggleViewBtn.textContent = `Relatief aan: ${
+            getSettings().relativeToContractHours
+                ? 'contracturen'
+                : 'uren gewerkt'
+        }`;
+    };
+    setBtnText();
+
+    actions.appendChild(toggleViewBtn);
+    toggleViewBtn.className = 'btn btn-timechimp-border';
+    toggleViewBtn.addEventListener('click', () => {
+        updateSettings({
+            relativeToContractHours: !getSettings().relativeToContractHours,
+        });
+        setBtnText();
+        render();
+    });
+
+    addTimePanel.appendChild(card);
+    return chartContainer;
 }
 
 /**

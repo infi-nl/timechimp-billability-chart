@@ -46,6 +46,7 @@ export class TimeChimpApi {
 export interface User {
     id: number;
     userName: string;
+    contractHours?: number;
 }
 
 export interface Time {

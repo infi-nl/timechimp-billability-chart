@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.7.0
+
+- Add mode for viewing chart and stats relative to contract hours.
+
 ## v1.6.0
 
 - Load theme color for billable section of the chart from company configuration.
