@@ -3,6 +3,7 @@
 ## v1.7.0
 
 - Add mode for viewing chart and stats relative to contract hours.
+- Add loading indicator.
 
 ## v1.6.0
 
