@@ -4,7 +4,6 @@ import { toIsoDate } from '../date';
 import { endOfWeek, getWeek, startOfWeek, subWeeks } from 'date-fns';
 import { calculateTimeStats } from './stats';
 import { getSettings, updateSettings } from './settings';
-import { render } from './index';
 
 const api = new TimeChimpApi();
 
@@ -39,10 +38,12 @@ async function doAddBillabilityChart(date: Date, user: User) {
         chartContainer = createBillabilityCard(addTimePanel);
     }
 
+    updateLoadingState(true);
     const [times, company] = await Promise.all([
         getTimes(user.id, date, GET_TIMES_WEEKS),
         api.getCompany(),
     ]);
+    updateLoadingState(false);
 
     const settings = getSettings();
 
@@ -71,7 +72,15 @@ function createBillabilityCard(addTimePanel: Element) {
 
     const actions = document.createElement('div');
     card.appendChild(actions);
-    actions.className = 'actions text-align-right';
+    actions.className = 'actions';
+
+    const spinner = document.createElement('tc-spinner');
+    actions.appendChild(spinner);
+    spinner.className = 'title-date-spinner';
+    const spinnerIcon = document.createElement('i');
+    spinner.appendChild(spinnerIcon);
+    spinnerIcon.id = 'billability-loading';
+    spinnerIcon.className = 'fa fa-circle-o-notch fa-spin hidden';
 
     const toggleViewBtn = document.createElement('button');
 
@@ -91,11 +100,19 @@ function createBillabilityCard(addTimePanel: Element) {
             relativeToContractHours: !getSettings().relativeToContractHours,
         });
         setBtnText();
-        render();
     });
 
     addTimePanel.appendChild(card);
     return chartContainer;
+}
+
+function updateLoadingState(loading: boolean) {
+    const spinner = document.getElementById('billability-loading');
+    if (spinner) {
+        loading
+            ? spinner.classList.remove('hidden')
+            : spinner.classList.add('hidden');
+    }
 }
 
 /**
