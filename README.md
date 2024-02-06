@@ -6,10 +6,10 @@ A browser extension to show your billability over the past 5 weeks in TimeChimp.
 
 ![The TimeChimp page with the billability chart](screenshots/page.png)
 
-<p>
+<div align="center">
   <img width="49%" src="screenshots/card-hours-worked.png" alt="The billability chart">
-  <img width="49%" align="right" src="screenshots/card-hover.png" alt="The tooltip of the chart, showing detailed information">
-</p>
+  <img width="49%" src="screenshots/card-hover.png" alt="The tooltip of the chart, showing detailed information">
+</div>
 
 ## Usage
 
