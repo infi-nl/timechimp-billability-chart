@@ -117,6 +117,14 @@ export function createOrUpdateChart(
                         );
                     },
                 },
+                dataLabels: {
+                    enabled: true,
+                    verticalAlign: 'bottom',
+                    style: textStyle,
+                    formatter: function () {
+                        return `${Math.round(this.y ?? 0)}%`;
+                    },
+                },
             },
             {
                 name: 'Gem. facturabiliteit',
