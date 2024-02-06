@@ -2,8 +2,8 @@
 
 A browser extension to show your billability over the past 5 weeks in TimeChimp.
 
-[![Available in the Chrome Web Store](images/chrome-badge.png)](https://chromewebstore.google.com/detail/timechimp-billability-cha/eleodjmnfjlgiidglnlfclhffhgkgpdp)
-[![Get the add-on for Firefox](images/firefox-badge.png)](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart/)
+[![Available in the Chrome Web Store](images/badges/chrome.png)](https://chromewebstore.google.com/detail/timechimp-billability-cha/eleodjmnfjlgiidglnlfclhffhgkgpdp)
+[![Get the add-on for Firefox](images/badges/firefox.png)](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart/)
 
 ## Screenshots
 
