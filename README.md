@@ -4,7 +4,7 @@
 
 A browser extension to show your billability over the past 5 weeks in TimeChimp.
 
-![Screenshot of the TimeChimp page with the billability chart](screenshot.png)
+![Screenshot of the TimeChimp page with the billability chart](screenshots/page.png)
 
 ## Usage
 
