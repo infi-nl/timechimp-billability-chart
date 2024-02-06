@@ -1,16 +1,24 @@
 # TimeChimp Billability Chart
 
-[![CI](https://github.com/infi-nl/timechimp-billability-chart/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/infi-nl/timechimp-billability-chart/actions/workflows/ci.yml)
-
 A browser extension to show your billability over the past 5 weeks in TimeChimp.
 
-![Screenshot of the TimeChimp page with the billability chart](screenshot.png)
+[![Available in the Chrome Web Store](images/badges/chrome.png)](https://chromewebstore.google.com/detail/timechimp-billability-cha/eleodjmnfjlgiidglnlfclhffhgkgpdp)
+[![Get the add-on for Firefox](images/badges/firefox.png)](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart/)
+
+## Screenshots
+
+![The TimeChimp page with the billability chart](images/page.png)
+
+<div align="center">
+  <img width="49%" src="images/card-hover.png" alt="The tooltip of the chart, showing detailed information">
+  <img width="49%" src="images/card-contract-hours.png" alt="The chart, based on the contract hours">
+</div>
 
 ## Usage
 
 The simplest way to use the extension is via the extension marketplace for your browser.
 
-- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart)
+- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart/)
 - [Chrome and Edge](https://chrome.google.com/webstore/detail/timechimp-billability-cha/eleodjmnfjlgiidglnlfclhffhgkgpdp)
 
 ## Calculations
@@ -53,8 +61,6 @@ npm run type-check
 npm run format
 ```
 
-To load the extension in your browser, check the docs for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
-
 ### Step by Step
 
 First, you need to clone the repository, and install all dependencies:
@@ -74,7 +80,9 @@ npm start
 This will generate various build folders for Chrome and Firefox.
 These are called `build_chrome` and `build_firefox` respectively.
 You can now load this as an unpacked extension in your browser.
-For more info on how to do that, check the instructions for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
+For more info on how to do that, check the instructions
+for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked)
+or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
 
 After making changes, be sure to click the "reload" button to let your browser reload the extension code.
 Without this, you won't see your changes in the browser.
