@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.8.0
+
+- Show billability percentage in chart.
+
 ## v1.7.0
 
 - Add mode for viewing chart and stats relative to contract hours.
