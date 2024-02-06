@@ -1,21 +1,24 @@
 # TimeChimp Billability Chart
 
-[![CI](https://github.com/infi-nl/timechimp-billability-chart/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/infi-nl/timechimp-billability-chart/actions/workflows/ci.yml)
-
 A browser extension to show your billability over the past 5 weeks in TimeChimp.
 
-![The TimeChimp page with the billability chart](screenshots/page.png)
+[![Available in the Chrome Web Store](images/chrome-badge.png)](https://chromewebstore.google.com/detail/timechimp-billability-cha/eleodjmnfjlgiidglnlfclhffhgkgpdp)
+[![Get the add-on for Firefox](images/firefox-badge.png)](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart/)
+
+## Screenshots
+
+![The TimeChimp page with the billability chart](images/page.png)
 
 <div align="center">
-  <img width="49%" src="screenshots/card-hover.png" alt="The tooltip of the chart, showing detailed information">
-  <img width="49%" src="screenshots/card-contract-hours.png" alt="The chart, based on the contract hours">
+  <img width="49%" src="images/card-hover.png" alt="The tooltip of the chart, showing detailed information">
+  <img width="49%" src="images/card-contract-hours.png" alt="The chart, based on the contract hours">
 </div>
 
 ## Usage
 
 The simplest way to use the extension is via the extension marketplace for your browser.
 
-- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart)
+- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/timechimp-billability-chart/)
 - [Chrome and Edge](https://chrome.google.com/webstore/detail/timechimp-billability-cha/eleodjmnfjlgiidglnlfclhffhgkgpdp)
 
 ## Calculations
