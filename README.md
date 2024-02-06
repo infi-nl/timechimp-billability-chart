@@ -4,7 +4,12 @@
 
 A browser extension to show your billability over the past 5 weeks in TimeChimp.
 
-![Screenshot of the TimeChimp page with the billability chart](screenshots/page.png)
+![The TimeChimp page with the billability chart](screenshots/page.png)
+
+<div style="display: flex; justify-content: space-between;">
+  <img width="49%" src="screenshots/card-hours-worked.png" alt="The billability chart">
+  <img width="49%" src="screenshots/card-hover.png" alt="The tooltip of the chart, showing detailed information">
+</div>
 
 ## Usage
 
@@ -53,8 +58,6 @@ npm run type-check
 npm run format
 ```
 
-To load the extension in your browser, check the docs for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
-
 ### Step by Step
 
 First, you need to clone the repository, and install all dependencies:
@@ -74,7 +77,9 @@ npm start
 This will generate various build folders for Chrome and Firefox.
 These are called `build_chrome` and `build_firefox` respectively.
 You can now load this as an unpacked extension in your browser.
-For more info on how to do that, check the instructions for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
+For more info on how to do that, check the instructions
+for [Chrome](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked)
+or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
 
 After making changes, be sure to click the "reload" button to let your browser reload the extension code.
 Without this, you won't see your changes in the browser.
