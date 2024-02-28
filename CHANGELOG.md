@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.8.1
+
+- Add "Ouderschapsverlof" to leave tasks.
+
 ## v1.8.0
 
 - Show billability percentage in chart.
