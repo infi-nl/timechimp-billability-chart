@@ -4,6 +4,7 @@ import { getWeek, getYear } from 'date-fns';
 const LEAVE_TASKS = [
     'Bijzonder verlof',
     'Feestdag',
+    'Ouderschapsverlof',
     'Tijd voor tijd',
     'Verlof',
 ];

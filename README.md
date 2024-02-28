@@ -35,6 +35,7 @@ These are entries with the following task names:
 
 - Bijzonder verlof
 - Feestdag
+- Ouderschapsverlof
 - Tijd voor tijd
 - Verlof
 
