@@ -41,6 +41,10 @@ export class TimeChimpApi {
     public getCompany(): Promise<Company> {
         return this.doFetch('/api/company');
     }
+
+    public getTasks(): Promise<Task[]> {
+        return this.doFetch('/api/task');
+    }
 }
 
 export interface User {
@@ -63,4 +67,10 @@ export interface Company {
 
 export interface Theme {
     mainColor?: string;
+}
+
+export interface Task {
+    id: number;
+    name: string;
+    tagNames?: string[];
 }

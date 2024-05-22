@@ -14,10 +14,13 @@ setDefaultOptions({
     firstWeekContainsDate: 4,
 });
 
+const BILLABILITY_EXCLUDE_TAG = 'billability-exclude';
+
 const api = new TimeChimpApi();
 
 let currentDate = new Date();
 let currentUser: User | undefined;
+let billabilityExcludedTasks: number[] | undefined;
 
 settingsUpdateEvent.addListener(() => render());
 
@@ -35,8 +38,14 @@ chrome.runtime.onMessage.addListener(async (msg: Message) => {
 });
 
 async function render(userName?: string) {
+    // Check if we have the current user info.
     if (!currentUser || (userName && userName !== currentUser.userName)) {
         currentUser = await getUser(userName);
+    }
+
+    // Check if we have the excluded tasks.
+    if (!billabilityExcludedTasks) {
+        billabilityExcludedTasks = await getBillabilityExcludedTaskIds();
     }
 
     await addBillabilityChart(currentDate, currentUser);
@@ -57,4 +66,14 @@ function getUser(userName?: string) {
         console.debug('Getting current user.');
         return api.getCurrentUser();
     }
+}
+
+async function getBillabilityExcludedTaskIds(): Promise<number[]> {
+    const tasks = (await api.getTasks()).filter(
+        (t) => t.tagNames?.includes(BILLABILITY_EXCLUDE_TAG),
+    );
+    console.debug(
+        `Billability excluded tasks: ${tasks.map((t) => t.name).join(', ')}`,
+    );
+    return tasks.map((t) => t.id);
 }
