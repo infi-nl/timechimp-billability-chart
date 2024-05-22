@@ -48,7 +48,11 @@ async function render(userName?: string) {
         billabilityExcludedTasks = await getBillabilityExcludedTaskIds();
     }
 
-    await addBillabilityChart(currentDate, currentUser);
+    await addBillabilityChart(
+        currentDate,
+        currentUser,
+        billabilityExcludedTasks,
+    );
 }
 
 /**

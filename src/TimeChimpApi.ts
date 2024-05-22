@@ -58,7 +58,7 @@ export interface Time {
     date: string;
     hours: number;
     billable: boolean;
-    taskName: string;
+    taskId: number;
 }
 
 export interface Company {

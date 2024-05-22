@@ -1,14 +1,6 @@
 import { Time } from '../TimeChimpApi';
 import { getWeek, getYear } from 'date-fns';
 
-const LEAVE_TASKS = [
-    'Bijzonder verlof',
-    'Feestdag',
-    'Ouderschapsverlof',
-    'Tijd voor tijd',
-    'Verlof',
-];
-
 type TimesByYearWeek = Record<string, Time[]>;
 
 interface Stats {
@@ -31,10 +23,15 @@ export function calculateTimeStats(
     contractHours: number | undefined,
     showWeeks: number,
     rollWeeks: number,
+    billabilityExcludedTasks: number[],
 ) {
     const timesByYearWeek = groupTimesByYearWeek(times);
-    removeLeaveOnlyWeeks(timesByYearWeek);
-    const stats = calculateStatsPerWeek(timesByYearWeek, contractHours);
+    removeLeaveOnlyWeeks(timesByYearWeek, billabilityExcludedTasks);
+    const stats = calculateStatsPerWeek(
+        timesByYearWeek,
+        contractHours,
+        billabilityExcludedTasks,
+    );
     const rollingStats = calculateRollingStats(stats, showWeeks, rollWeeks);
     return rollingStats.reverse();
 }
@@ -53,9 +50,12 @@ function groupTimesByYearWeek(times: Time[]) {
     }, {});
 }
 
-function removeLeaveOnlyWeeks(timesByYearWeek: TimesByYearWeek) {
+function removeLeaveOnlyWeeks(
+    timesByYearWeek: TimesByYearWeek,
+    billabilityExcludedTasks: number[],
+) {
     Object.entries(timesByYearWeek).forEach(([yearWeekStr, times]) => {
-        if (times.every((t) => LEAVE_TASKS.includes(t.taskName))) {
+        if (times.every((t) => billabilityExcludedTasks.includes(t.taskId))) {
             delete timesByYearWeek[yearWeekStr];
         }
     });
@@ -63,7 +63,8 @@ function removeLeaveOnlyWeeks(timesByYearWeek: TimesByYearWeek) {
 
 function calculateStatsPerWeek(
     timesByYearWeek: TimesByYearWeek,
-    contractHours?: number,
+    contractHours: number | undefined,
+    billabilityExcludedTasks: number[],
 ) {
     return Object.entries(timesByYearWeek)
         .map<Stats>(([yearWeekStr, times]) => {
@@ -76,7 +77,9 @@ function calculateStatsPerWeek(
             const excludedLeaveHours = sum(
                 times
                     .filter(
-                        (t) => !t.billable && LEAVE_TASKS.includes(t.taskName),
+                        (t) =>
+                            !t.billable &&
+                            billabilityExcludedTasks.includes(t.taskId),
                     )
                     .map((t) => t.hours),
             );
@@ -96,7 +99,9 @@ function calculateStatsPerWeek(
                 totalHours: sum(times.map((t) => t.hours)),
                 leaveHours: sum(
                     times
-                        .filter((t) => LEAVE_TASKS.includes(t.taskName))
+                        .filter((t) =>
+                            billabilityExcludedTasks.includes(t.taskId),
+                        )
                         .map((t) => t.hours),
                 ),
                 billableHoursPercentage: calculateHoursPercentage(

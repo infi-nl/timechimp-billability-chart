@@ -18,13 +18,21 @@ const GET_TIMES_WEEKS = SHOW_WEEKS + ROLLING_AVG_WEEKS * 2;
 /**
  * Adds a billability chart on basis of times for the given date from TimeChimp.
  */
-export async function addBillabilityChart(date: Date, user: User) {
-    await doAddBillabilityChart(date, user).catch((e) =>
-        console.error(`Error when adding billability chart: ${e}`),
+export async function addBillabilityChart(
+    date: Date,
+    user: User,
+    billabilityExcludedTasks: number[],
+) {
+    await doAddBillabilityChart(date, user, billabilityExcludedTasks).catch(
+        (e) => console.error(`Error when adding billability chart: ${e}`),
     );
 }
 
-async function doAddBillabilityChart(date: Date, user: User) {
+async function doAddBillabilityChart(
+    date: Date,
+    user: User,
+    billabilityExcludedTasks: number[],
+) {
     const addTimePanel = document.querySelector('.col-md-4');
     if (!addTimePanel?.querySelector('form[name="addTimeForm"]')) {
         console.debug('Add time form not found, returning');
@@ -52,6 +60,7 @@ async function doAddBillabilityChart(date: Date, user: User) {
         settings.relativeToContractHours ? user.contractHours : undefined,
         SHOW_WEEKS,
         ROLLING_AVG_WEEKS,
+        billabilityExcludedTasks,
     );
     createOrUpdateChart(
         stats,
