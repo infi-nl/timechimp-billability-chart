@@ -1,6 +1,6 @@
 export class TimeChimpApi {
     private async doFetch<T>(path: string): Promise<T> {
-        const url = `https://app.timechimp.com${path}`;
+        const url = `https://web.timechimp.com${path}`;
         const response = await fetch(url);
         const body = await response.text();
 

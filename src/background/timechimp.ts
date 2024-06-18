@@ -20,7 +20,7 @@ chrome.webRequest.onCompleted.addListener(
     },
     {
         // Limit to requests that indicate a week change
-        urls: ['https://app.timechimp.com/api/time/week/*'],
+        urls: ['https://web.timechimp.com/api/time/week/*'],
     },
 );
 
@@ -31,9 +31,9 @@ chrome.webRequest.onCompleted.addListener(
     (request) => sendMessage(request.tabId, { type: 'refresh' }),
     {
         urls: [
-            'https://app.timechimp.com/api/time',
-            'https://app.timechimp.com/api/time/put',
-            'https://app.timechimp.com/api/time/delete?*',
+            'https://web.timechimp.com/api/time',
+            'https://web.timechimp.com/api/time/put',
+            'https://web.timechimp.com/api/time/delete?*',
         ],
     },
 );

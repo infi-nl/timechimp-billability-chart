@@ -7,7 +7,7 @@
     "webRequest"
   ],
   "host_permissions": [
-    "*://app.timechimp.com/*"
+    "*://*.timechimp.com/*"
   ],
   "content_scripts": [
     {
@@ -35,4 +35,3 @@
     }
   }
 }
-
