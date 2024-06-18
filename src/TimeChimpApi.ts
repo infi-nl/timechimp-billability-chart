@@ -1,7 +1,18 @@
+import { getTokenFromStorage } from './content/storage';
+
 export class TimeChimpApi {
     private async doFetch<T>(path: string): Promise<T> {
+        const token = getTokenFromStorage();
+        if (!token) {
+            throw new Error('No token found in local storage');
+        }
+
         const url = `https://web.timechimp.com${path}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         const body = await response.text();
 
         if (response.status >= 400) {

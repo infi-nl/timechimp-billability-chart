@@ -4,7 +4,8 @@
   "version": "1.8.1",
   "manifest_version": 3,
   "permissions": [
-    "webRequest"
+    "webRequest",
+    "storage"
   ],
   "host_permissions": [
     "*://*.timechimp.com/*"
