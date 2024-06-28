@@ -1,5 +1,7 @@
 import { Message } from '../message';
 
+const API_URL = 'https://web.timechimp.com';
+
 /**
  * The time registration form is an iframe in the webpage,
  * so we need to wait for that to load, and store the frame id per tab.
@@ -35,7 +37,7 @@ chrome.webRequest.onCompleted.addListener(
     },
     {
         // Limit to requests that indicate a week change
-        urls: ['https://web.timechimp.com/api/time/week/*'],
+        urls: [`${API_URL}/api/time/week/*`],
     },
 );
 
@@ -46,9 +48,9 @@ chrome.webRequest.onCompleted.addListener(
     (request) => sendMessage(request.tabId, { type: 'refresh' }),
     {
         urls: [
-            'https://web.timechimp.com/api/time',
-            'https://web.timechimp.com/api/time/put',
-            'https://web.timechimp.com/api/time/delete?*',
+            `${API_URL}/api/time`,
+            `${API_URL}/api/time/put`,
+            `${API_URL}/api/time/delete?*`,
         ],
     },
 );
