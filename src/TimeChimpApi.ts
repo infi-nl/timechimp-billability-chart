@@ -1,12 +1,6 @@
-import { getTokenFromStorage } from './content/storage';
-
 export class TimeChimpApi {
     private async doFetch<T>(path: string): Promise<T> {
-        const token = getTokenFromStorage();
-        if (!token) {
-            throw new Error('No token found in local storage');
-        }
-
+        const token = this.getToken();
         const url = `https://web.timechimp.com${path}`;
         const response = await fetch(url, {
             headers: {
@@ -20,6 +14,24 @@ export class TimeChimpApi {
         }
 
         return JSON.parse(body);
+    }
+
+    private getToken(): string {
+        let token = window.localStorage.getItem('tc_auth_token');
+        if (!token) {
+            throw new Error('No token found in local storage');
+        }
+
+        // The token starts and ends with a double quote, remove that.
+        // Though also account for the fact that this could change.
+        if (token.startsWith('"')) {
+            token = token.substring(1);
+        }
+        if (token.endsWith('"')) {
+            token = token.substring(0, token.length - 1);
+        }
+
+        return token;
     }
 
     public getCurrentUser(): Promise<User> {
