@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.8.2
+
+- Fix extension after changes in the TimeChimp HTML structure.
+
 ## v1.8.1
 
 - Add "Ouderschapsverlof" to leave tasks.

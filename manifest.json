@@ -1,25 +1,27 @@
 {
   "name": "TimeChimp Billability Chart",
   "description": "Adds a billability chart on the TimeChimp hours page.",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "manifest_version": 3,
   "permissions": [
-    "webRequest"
+    "webRequest",
+    "storage"
   ],
   "host_permissions": [
-    "*://app.timechimp.com/*"
+    "*://*.timechimp.com/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://app.timechimp.com/*"
+        "https://angular.timechimp.com/*"
       ],
       "js": [
         "build/content/index.js"
       ],
       "css": [
         "build/content/index.css"
-      ]
+      ],
+      "all_frames": true
     }
   ],
   "background": {
@@ -35,4 +37,3 @@
     }
   }
 }
-
