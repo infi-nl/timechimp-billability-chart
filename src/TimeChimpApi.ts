@@ -1,10 +1,8 @@
 export class TimeChimpApi {
     private async doFetch<T>(path: string): Promise<T> {
-        const token = this.getToken();
-        const url = `https://web.timechimp.com${path}`;
-        const response = await fetch(url, {
+        const response = await fetch(`https://web.timechimp.com${path}`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${this.getToken()}`,
             },
         });
         const body = await response.text();
