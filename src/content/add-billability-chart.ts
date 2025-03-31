@@ -39,9 +39,9 @@ async function doAddBillabilityChart(date: Date, user: User) {
     }
 
     updateLoadingState(true);
-    const [times, company] = await Promise.all([
+    const [times, theme] = await Promise.all([
         getTimes(user.id, date, GET_TIMES_WEEKS),
-        api.getCompany(),
+        api.getTheme(),
     ]);
     updateLoadingState(false);
 
@@ -56,7 +56,7 @@ async function doAddBillabilityChart(date: Date, user: User) {
     createOrUpdateChart(
         stats,
         settings.relativeToContractHours,
-        company.theme?.mainColor,
+        theme.mainColor,
         chartContainer,
     );
 }

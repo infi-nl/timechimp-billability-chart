@@ -62,6 +62,9 @@ export class TimeChimpApi {
     public getCompany(): Promise<Company> {
         return this.doFetch('/api/company');
     }
+    public getTheme(): Promise<Theme> {
+        return this.doFetch('/api/company/theme');
+    }
 }
 
 export interface User {
