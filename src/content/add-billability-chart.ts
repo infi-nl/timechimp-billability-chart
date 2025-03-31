@@ -45,8 +45,6 @@ async function doAddBillabilityChart(date: Date, user: User) {
     ]);
     updateLoadingState(false);
 
-    console.log(theme);
-
     const settings = getSettings();
 
     const stats = calculateTimeStats(
