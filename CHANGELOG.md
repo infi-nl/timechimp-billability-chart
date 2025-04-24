@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.8.3
+
+- Use color from company theme
+
 ## v1.8.2
 
 - Fix extension after changes in the TimeChimp HTML structure.
