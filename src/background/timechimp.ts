@@ -55,8 +55,8 @@ chrome.webRequest.onCompleted.addListener(
     },
     {
         urls: [
-            `${API_URL}/api/time`,        // Using POST method when adding a new entry
-            `${API_URL}/api/time/*`,      // Using DELETE or PUT method when deleting or updating an entry
+            `${API_URL}/api/time`, // Using POST method when adding a new entry
+            `${API_URL}/api/time/*`, // Using DELETE or PUT method when deleting or updating an entry
             `${API_URL}/api/time/copy/*`, // Using POST method when copying entry
         ],
     },
