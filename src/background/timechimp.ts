@@ -45,12 +45,19 @@ chrome.webRequest.onCompleted.addListener(
  * Listen for API calls related to time entries.
  */
 chrome.webRequest.onCompleted.addListener(
-    (request) => sendMessage(request.tabId, { type: 'refresh' }),
+    function (request) {
+        if (request.method === 'GET') {
+            // Exclude GET requests as that could trigger endless loops
+            return;
+        }
+
+        return sendMessage(request.tabId, { type: 'refresh' });
+    },
     {
         urls: [
-            `${API_URL}/api/time`,
-            `${API_URL}/api/time/put`,
-            `${API_URL}/api/time/delete?*`,
+            `${API_URL}/api/time`,        // Using POST method when adding a new entry
+            `${API_URL}/api/time/*`,      // Using DELETE or PUT method when deleting or updating an entry
+            `${API_URL}/api/time/copy/*`, // Using POST method when copying entry
         ],
     },
 );
