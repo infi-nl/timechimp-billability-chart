@@ -16,10 +16,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify versions
+        run: ./check-versions.sh
+
       - name: Generate changelog
         id: changelog
         run: |
           awk "/^## \\[?${{ github.ref_name }}\\]? /{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md > ${{ github.workspace }}-CHANGELOG.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Build artifacts
         run: |
