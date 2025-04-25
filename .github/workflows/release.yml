@@ -1,0 +1,47 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify versions
+        run: ./check-versions.sh
+
+      - name: Generate changelog
+        id: changelog
+        # The below run steps assumes the changelog is in the format of https://keepachangelog.com/en/1.1.0/
+        run: |
+          awk "/^## \\[?${{ github.ref_name }}\\]? /{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md > ${{ github.workspace }}-CHANGELOG.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build artifacts
+        run: |
+          npm install 
+          npm run build
+          zip -r ${{ github.ref_name }}-chrome.zip build_chrome/*
+          zip -r ${{ github.ref_name }}-firefox.zip build_firefox/*
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          files: |
+            ${{ github.ref_name }}-chrome.zip
+            ${{ github.ref_name }}-firefox.zip
+
