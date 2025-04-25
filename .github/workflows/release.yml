@@ -21,6 +21,7 @@ jobs:
 
       - name: Generate changelog
         id: changelog
+        # The below run steps assumes the changelog is in the format of https://keepachangelog.com/en/1.1.0/
         run: |
           awk "/^## \\[?${{ github.ref_name }}\\]? /{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md > ${{ github.workspace }}-CHANGELOG.txt
 
