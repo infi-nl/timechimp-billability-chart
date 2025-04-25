@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 ### Fixed
-Re-render chart on update and deletion of time entries (#22)
+- Re-render chart on update and deletion of time entries (#22)
+### Added
+- Add release workflow to create release once tag is pushed
 
 ## [v1.8.3] - 2025-04-24
 ### Fixed
