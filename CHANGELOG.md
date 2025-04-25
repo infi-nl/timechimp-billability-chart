@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixed
+Re-render chart on update and deletion of time entries (#22)
+
 ## v1.8.3
 
 - Use color from company theme
