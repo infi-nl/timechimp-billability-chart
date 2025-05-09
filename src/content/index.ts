@@ -58,3 +58,7 @@ function getUser(userName?: string) {
         return api.getCurrentUser();
     }
 }
+
+setTimeout(async () => {
+    await render();
+}, 1000);

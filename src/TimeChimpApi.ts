@@ -15,7 +15,20 @@ export class TimeChimpApi {
     }
 
     private getToken(): string {
-        let token = window.localStorage.getItem('tc_auth_token');
+        let key = '';
+        for (let i = 0; i < localStorage.length; i++) {
+            key = localStorage.key(i) ?? '';
+            if (!key?.startsWith('CognitoIdentityServiceProvider')) {
+                continue;
+            }
+            if (!key?.endsWith('accessToken')) {
+                continue;
+            }
+
+            break;
+        }
+
+        let token = window.localStorage.getItem(key);
         if (!token) {
             throw new Error('No token found in local storage');
         }
