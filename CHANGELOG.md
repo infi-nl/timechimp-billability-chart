@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Re-render chart on update and deletion of time entries (#22)
+- Bump esbuild from 0.19.5 to 0.25.0 (#19)
 ### Added
 - Add release workflow to create release once tag is pushed (#23)
 
