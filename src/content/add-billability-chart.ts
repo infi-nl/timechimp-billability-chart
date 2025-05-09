@@ -25,9 +25,9 @@ export async function addBillabilityChart(date: Date, user: User) {
 }
 
 async function doAddBillabilityChart(date: Date, user: User) {
-    const addTimePanel = document.querySelector('.col-md-4');
-    if (!addTimePanel?.querySelector('form[name="addTimeForm"]')) {
-        console.debug('Add time form not found, returning');
+    const addTimePanel = document.querySelector('form')?.parentElement;
+    if (!addTimePanel) {
+        console.debug('Add time panel not found, returning');
         return;
     }
 
