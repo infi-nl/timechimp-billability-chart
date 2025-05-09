@@ -16,7 +16,14 @@ chrome.webRequest.onCompleted.addListener(
         const matches = request.url.match('.*/time/week/([^/]+)/(.*)');
 
         if (matches?.length === 3) {
-            console.debug('Sending week changed triggered by ' + request.method + ' ' + request.url + ' to tabId: ' + request.tabId);
+            console.debug(
+                'Sending week changed triggered by ' +
+                    request.method +
+                    ' ' +
+                    request.url +
+                    ' to tabId: ' +
+                    request.tabId,
+            );
             await sendMessage(request.tabId, {
                 type: 'weekChanged',
                 date: decodeURIComponent(matches[2]),
@@ -44,11 +51,23 @@ chrome.webRequest.onCompleted.addListener(
 
         if (request.method === 'GET') {
             // Exclude GET requests as that could trigger endless loops
-            console.trace('abort sending message because of ' + request.method + ' ' + request.url);
+            console.trace(
+                'abort sending message because of ' +
+                    request.method +
+                    ' ' +
+                    request.url,
+            );
             return;
         }
 
-        console.debug('Sending refresh triggered by ' + request.method + ' ' + request.url + ' to tabId: ' + request.tabId);
+        console.debug(
+            'Sending refresh triggered by ' +
+                request.method +
+                ' ' +
+                request.url +
+                ' to tabId: ' +
+                request.tabId,
+        );
         return sendMessage(request.tabId, { type: 'refresh' });
     },
     {
@@ -64,12 +83,12 @@ async function sendMessage(tabId: number, msg: Message) {
     if (tabId < 0) {
         console.error('Cannot send message to tabId less then zero');
     }
-    await chrome.tabs
-        .sendMessage(tabId, msg)
-        .catch((error) => {
-                console.error(
-                    'Failed to send message to tab (' + tabId + '), content script is likely not loaded yet. ' + error
-                );
-            },
+    await chrome.tabs.sendMessage(tabId, msg).catch((error) => {
+        console.error(
+            'Failed to send message to tab (' +
+                tabId +
+                '), content script is likely not loaded yet. ' +
+                error,
         );
+    });
 }

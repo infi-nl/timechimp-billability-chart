@@ -18,10 +18,10 @@ export class TimeChimpApi {
         let key = '';
         for (let i = 0; i < localStorage.length; i++) {
             key = localStorage.key(i) ?? '';
-            if (! key?.startsWith('CognitoIdentityServiceProvider')) {
+            if (!key?.startsWith('CognitoIdentityServiceProvider')) {
                 continue;
             }
-            if (! key?.endsWith('accessToken')) {
+            if (!key?.endsWith('accessToken')) {
                 continue;
             }
 
