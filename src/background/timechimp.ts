@@ -7,10 +7,16 @@ const API_URL = 'https://web.timechimp.com';
  */
 chrome.webRequest.onCompleted.addListener(
     async (request) => {
+        if (request.tabId === -1) {
+            // The request was made by an extension background page, service worker or system process. We cant send updates to a tab.
+            return;
+        }
+
         // Get the date and the user email from the request to TimeChimp
         const matches = request.url.match('.*/time/week/([^/]+)/(.*)');
 
         if (matches?.length === 3) {
+            console.debug('Sending week changed triggered by ' + request.method + ' ' + request.url + ' to tabId: ' + request.tabId);
             await sendMessage(request.tabId, {
                 type: 'weekChanged',
                 date: decodeURIComponent(matches[2]),
@@ -31,6 +37,11 @@ chrome.webRequest.onCompleted.addListener(
  */
 chrome.webRequest.onCompleted.addListener(
     function (request) {
+        if (request.tabId === -1) {
+            // The request was made by an extension background page, service worker or system process. We cant send updates to a tab.
+            return;
+        }
+
         if (request.method === 'GET') {
             // Exclude GET requests as that could trigger endless loops
             console.trace('abort sending message because of ' + request.method + ' ' + request.url);
@@ -50,6 +61,9 @@ chrome.webRequest.onCompleted.addListener(
 );
 
 async function sendMessage(tabId: number, msg: Message) {
+    if (tabId < 0) {
+        console.error('Cannot send message to tabId less then zero');
+    }
     await chrome.tabs
         .sendMessage(tabId, msg)
         .catch((error) => {
