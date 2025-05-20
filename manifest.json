@@ -13,7 +13,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://angular.timechimp.com/*"
+        "https://*.timechimp.com/*"
       ],
       "js": [
         "build/content/index.js"

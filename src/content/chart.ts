@@ -28,6 +28,9 @@ export function createOrUpdateChart(
         title: {
             text: 'Facturabiliteit',
         },
+        credits: {
+            enabled: false,
+        },
         xAxis: {
             categories: rollingStats.map((s) => s.week.toString()),
             labels: {
