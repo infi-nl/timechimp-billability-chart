@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [v2.0.0]
 ### Fixed
 - Re-render chart on update and deletion of time entries (#22)
 - Bump esbuild from 0.19.5 to 0.25.0 (#19)

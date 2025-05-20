@@ -21,7 +21,7 @@ echo "Detected versions:"
 manifestVersion=$(jq -r .version 'manifest.json')
 checkVersionMatch 'manifest.json' "$manifestVersion"
 
-checkVersionMatch 'CHANGELOG.md' "$(sed -nE 's/^## v(.*)$/\1/p' 'CHANGELOG.md' | head -n 1)"
+checkVersionMatch 'CHANGELOG.md' "$(sed -nE 's/^## \[v(.*)\]$/\1/p' 'CHANGELOG.md' | head -n 1)"
 
 if [ ! "$allMatch" = 1 ]
 then
