@@ -34,7 +34,7 @@ jobs:
           npm install 
           npm run build
           zip -r ${{ github.ref_name }}-chrome.zip build_chrome/*
-          zip -r ${{ github.ref_name }}-firefox.zip build_firefox/*
+          cd build_firefox && zip -r ../${{ github.ref_name }}-firefox.zip . && cd ..
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
