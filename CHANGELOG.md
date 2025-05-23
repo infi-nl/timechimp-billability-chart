@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixed
+- Correct firefox zip (#27)
+
 ## [v2.0.0]
 ### Fixed
 - Re-render chart on update and deletion of time entries (#22)
