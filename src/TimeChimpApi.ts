@@ -76,7 +76,9 @@ export class TimeChimpApi {
         return this.doFetch('/api/company');
     }
     public getTheme(): Promise<Theme> {
-        return this.doFetch('/api/company/theme');
+        return Promise.resolve({ mainColor: '#F67905' });
+        // quick fix: need to research why this endpoint is not working
+        // return this.doFetch('/api/company/theme')
     }
 }
 
