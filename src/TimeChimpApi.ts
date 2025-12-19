@@ -34,7 +34,9 @@ export class TimeChimpApi {
 
         let token = window.localStorage.getItem(key);
         if (!token) {
-            throw new Error(`No token found in local storage using key: ${key}`);
+            throw new Error(
+                `No token found in local storage using key: ${key}`,
+            );
         }
 
         // The token starts and ends with a double quote, remove that.
