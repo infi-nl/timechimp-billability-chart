@@ -28,6 +28,9 @@ export class TimeChimpApi {
             console.debug(`Found access token key: ${key}`);
             break;
         }
+        if (key === '') {
+            throw new Error(`Unable to find a matching key in local storage`);
+        }
 
         let token = window.localStorage.getItem(key);
         if (!token) {
