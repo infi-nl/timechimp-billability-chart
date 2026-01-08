@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Correct firefox zip (#27)
+- Correct theme url (#30)
 
 ## [v2.0.0]
 ### Fixed

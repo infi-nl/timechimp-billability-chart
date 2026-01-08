@@ -25,12 +25,18 @@ export class TimeChimpApi {
                 continue;
             }
 
+            console.debug(`Found access token key: ${key}`);
             break;
+        }
+        if (key === '') {
+            throw new Error(`Unable to find a matching key in local storage`);
         }
 
         let token = window.localStorage.getItem(key);
         if (!token) {
-            throw new Error('No token found in local storage');
+            throw new Error(
+                `No token found in local storage using key: ${key}`,
+            );
         }
 
         // The token starts and ends with a double quote, remove that.
@@ -76,7 +82,7 @@ export class TimeChimpApi {
         return this.doFetch('/api/company');
     }
     public getTheme(): Promise<Theme> {
-        return this.doFetch('/api/company/theme');
+        return this.doFetch('/api/theme');
     }
 }
 
