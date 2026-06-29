@@ -109,9 +109,11 @@ function createBillabilityCard(addTimePanel: Element) {
 function updateLoadingState(loading: boolean) {
     const spinner = document.getElementById('billability-loading');
     if (spinner) {
-        loading
-            ? spinner.classList.remove('hidden')
-            : spinner.classList.add('hidden');
+        if (loading) {
+            spinner.classList.remove('hidden');
+        } else {
+            spinner.classList.add('hidden');
+        }
     }
 }
 

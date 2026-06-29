@@ -13,7 +13,7 @@ chrome.webRequest.onCompleted.addListener(
         }
 
         // Get the date and the user email from the request to TimeChimp
-        const matches = request.url.match('.*/time/week/([^/]+)/(.*)');
+        const matches = /.*\/time\/week\/([^/]+)\/(.*)/.exec(request.url);
 
         if (matches?.length === 3) {
             console.debug(
