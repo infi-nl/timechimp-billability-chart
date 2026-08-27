@@ -17,18 +17,16 @@ const GET_TIMES_WEEKS = SHOW_WEEKS + ROLLING_AVG_WEEKS * 2;
 
 /**
  * Adds a billability chart on basis of times for the given date from TimeChimp.
+ * Returns false if the chart could not be added.
  */
-export async function addBillabilityChart(date: Date, user: User) {
-    await doAddBillabilityChart(date, user).catch((e) =>
-        console.error(`Error when adding billability chart: ${e}`),
-    );
-}
-
-async function doAddBillabilityChart(date: Date, user: User) {
+export async function addBillabilityChart(
+    date: Date,
+    user: User,
+): Promise<boolean> {
     const addTimePanel = document.querySelector('form')?.parentElement;
     if (!addTimePanel) {
         console.debug('Add time panel not found, returning');
-        return;
+        return false;
     }
 
     // Check if the chart container already exists.
@@ -59,6 +57,7 @@ async function doAddBillabilityChart(date: Date, user: User) {
         theme.mainColor,
         chartContainer,
     );
+    return true;
 }
 
 function createBillabilityCard(addTimePanel: Element) {

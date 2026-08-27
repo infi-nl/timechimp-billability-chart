@@ -31,15 +31,21 @@ chrome.runtime.onMessage.addListener(async (msg: Message) => {
         currentDate = new Date(msg.date);
     }
 
-    await render(msg.userName);
+    await render(msg.userName, 0);
 });
 
-async function render(userName?: string) {
+async function render(userName?: string, retriesLeft = 5) {
     if (!currentUser || (userName && userName !== currentUser.userName)) {
         currentUser = await getUser(userName);
     }
 
-    await addBillabilityChart(currentDate, currentUser);
+    const added = await addBillabilityChart(currentDate, currentUser).catch(
+        (e) => console.error(`Error when adding billability chart: ${e}`),
+    );
+
+    if (!added && retriesLeft > 0) {
+        setTimeout(() => render(userName, retriesLeft - 1), 1000);
+    }
 }
 
 /**

@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+## Fixed
+- Retry adding the chart when the page loads slowly.
 
 ## [v2.0.1]
 ### Fixed
